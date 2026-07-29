@@ -2,100 +2,85 @@ import json
 import os
 
 
-def carica_estrazioni(filepath):
-    """Carica il file JSON e converte tutti i valori in numeri interi."""
+def diagnostica_e_analizza(filepath):
+    print(f"1. Verifico esistenza file '{filepath}'...")
+
     if not os.path.exists(filepath):
-        print(f"Errore: Il file '{filepath}' non esiste nella cartella attuale.")
-        return None
-
-    with open(filepath, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    estrazioni_pulite = {}
-    for ruota, estrazioni in data.items():
-        estrazioni_pulite[ruota] = []
-        for estrazione in estrazioni:
-            # Converte ogni numero della cinquina in intero
-            estrazione_int = [int(n) for n in estrazione]
-            estrazioni_pulite[ruota].append(estrazione_int)
-
-    return estrazioni_pulite
-
-
-def analizza_frequenze(estrazioni_ruota):
-    """Calcola la frequenza di ciascun numero (1-90)."""
-    frequenze = {n: 0 for n in range(1, 91)}
-
-    for estrazione in estrazioni_ruota:
-        for numero in estrazione:
-            if 1 <= numero <= 90:
-                frequenze[numero] += 1
-
-    return frequenze
-
-
-def analizza_ritardi(estrazioni_ruota):
-    """Calcola il ritardo attuale di ciascun numero (1-90).
-
-    Scorre le estrazioni dal fondo (la più recente) verso l'inizio.
-    """
-    ritardi = {n: 0 for n in range(1, 91)}
-
-    for numero in range(1, 91):
-        ritardo = 0
-        trovato = False
-        for estrazione in reversed(estrazioni_ruota):
-            if numero in estrazione:
-                trovato = True
-                break
-            ritardo += 1
-
-        ritardi[numero] = ritardo if trovato else len(estrazioni_ruota)
-
-    return ritardi
-
-
-def main():
-    file_path = "estrazioni.json"
-    dati = carica_estrazioni(file_path)
-
-    if not dati:
+        print(
+            f"   ❌ ERRORE: Il file '{filepath}' NON esiste in questa cartella!"
+        )
+        print(f"   📁 Cartella attuale di lavoro: {os.getcwd()}")
         return
 
-    print("==========================================")
-    print("      ANALISI STATISTICA ESTRAZIONI       ")
+    print("   ✅ File trovato!\n")
+
+    print("2. Tento la lettura del file JSON...")
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        print("   ✅ JSON caricato con successo!")
+    except Exception as e:
+        print(f"   ❌ ERRORE nel leggere il JSON: {e}")
+        return
+
+    print(f"\n3. Contenuto trovato nel JSON:")
+    print(f"   - Tipo di dato principale: {type(data)}")
+
+    if isinstance(data, dict):
+        print(f"   - Chiavi (ruote) trovate: {list(data.keys())}")
+        for ruota, estrazioni in data.items():
+            print(
+                f"   - Ruota '{ruota}': contiene {len(estrazioni)} estrazioni."
+            )
+            if len(estrazioni) > 0:
+                print(
+                    f"     Esempio prima estrazione: {estrazioni[0]} (tipo elementi: {[type(x) for x in estrazioni[0]]})"
+                )
+    else:
+        print(
+            "   ⚠️ Il JSON non è un dizionario con le ruote, ma un altro tipo di dato."
+        )
+        return
+
+    print("\n==========================================")
+    print("         INIZIO ANALISI DATI              ")
     print("==========================================")
 
-    # Scorre ed elabora automaticamente tutte le ruote nel file
-    for ruota, estrazioni in dati.items():
+    for ruota, estrazioni in data.items():
         if not estrazioni:
             continue
 
-        totale_estrazioni = len(estrazioni)
-        freq = analizza_frequenze(estrazioni)
-        rit = analizza_ritardi(estrazioni)
+        # Convertiamo in interi
+        estrazioni_int = []
+        for est in estrazioni:
+            estrazioni_int.append([int(x) for x in est])
 
-        # Prende i primi 5 più frequenti e i primi 5 più ritardatari
-        top_frequenti = sorted(freq.items(), key=lambda x: x[1], reverse=True)[
-            :5
-        ]
-        top_ritardatari = sorted(
-            rit.items(), key=lambda x: x[1], reverse=True
-        )[:5]
+        # Frequenze
+        freq = {n: 0 for n in range(1, 91)}
+        for est in estrazioni_int:
+            for num in est:
+                if 1 <= num <= 90:
+                    freq[num] += 1
 
-        print(f"\n RUOTA DI {ruota.upper()} ({totale_estrazioni} estrazioni)")
-        print("-" * 40)
+        # Ritardi
+        rit = {n: 0 for n in range(1, 91)}
+        for num in range(1, 91):
+            r = 0
+            trovato = False
+            for est in reversed(estrazioni_int):
+                if num in est:
+                    trovato = True
+                    break
+                r += 1
+            rit[num] = r if trovato else len(estrazioni_int)
 
-        print("  [+] Top 5 Più Frequenti:")
-        for num, f in top_frequenti:
-            print(f"      - Numero {num:2d} -> Uscito {f} volte")
+        top_freq = sorted(freq.items(), key=lambda x: x[1], reverse=True)[:5]
+        top_rit = sorted(rit.items(), key=lambda x: x[1], reverse=True)[:5]
 
-        print("  [-] Top 5 Più Ritardatari:")
-        for num, r in top_ritardatari:
-            print(f"      - Numero {num:2d} -> Ritardo: {r} estrazioni")
-
-        print("=" * 40)
+        print(f"\n📍 RUOTA DI {ruota.upper()} ({len(estrazioni_int)} estrazioni)")
+        print("  Top 5 Frequenti  :", [f"N.{n} ({f}v)" for n, f in top_freq])
+        print("  Top 5 Ritardatari:", [f"N.{n} ({r}r)" for n, r in top_rit])
 
 
-if __name__ == "__main__":
-    main()
+# Esegui la diagnostica
+diagnostica_e_analizza("estrazioni.json")
