@@ -1,1 +1,2 @@
-# LottoMio
+# LottoGeminiNew
+Lotto gemini
