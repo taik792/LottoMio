@@ -28,7 +28,7 @@ def elabora_motore_sommativo():
     if not os.path.exists('estrazioni.json'): 
         return
 
-    FISSO_OTTIMIZZATO = 25 
+    FISSI_DA_TESTARE = [25] 
 
     with open('estrazioni.json', 'r', encoding='utf-8') as f:
         archivio = json.load(f)
