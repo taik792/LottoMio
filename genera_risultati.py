@@ -1,153 +1,152 @@
 import json
 import os
-from datetime import datetime
+import numpy as np
+from collections import defaultdict
 
-def fuori_90(numero):
-    while numero > 90: numero -= 90
-    while numero <= 0: numero += 90
-    return numero
+# --- CONFIGURAZIONE FILE ---
+FILE_ESTRAZIONI = 'estrazioni.json'
+FILE_OUTPUT = 'risultati_v4.json'
 
-def calcola_abbinamento_91(numero):
-    # Opzione B: Complemento a 91 (Simmetrico)
-    return fuori_90(91 - numero)
+# Finestra temporale per il calcolo delle ambate (es. ultime 60 estrazioni)
+FINESTRA_AMBATE = 60 
 
-def calcola_vertibile(numero):
-    # Calcolo matematico del vertibile con fuori 90 automatico
-    if numero % 10 == 0: 
-        res = numero // 10
-    else:
-        str_num = str(numero).zfill(2)
-        if str_num[0] == str_num[1]: 
-            res = numero + 9  # Gemelli (es. 77 -> 86)
-        else:
-            res = int(str_num[1] + str_num[0])
-            
-    return fuori_90(res) # Garantisce che il risultato sia SEMPRE tra 1 e 90
-
-def elabora_motore_sommativo():
-    if not os.path.exists('estrazioni.json'): 
-        return
-
-    FISSI_DA_TESTARE = [25] 
-
-    with open('estrazioni.json', 'r', encoding='utf-8') as f:
-        archivio = json.load(f)
-
-    archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
-
-    if "BARI" not in archivio_pulito or len(archivio_pulito["BARI"]) == 0: 
-        return
+def carica_estrazioni(filepath):
+    """Carica il file JSON con l'archivio delle estrazioni."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Il file {filepath} non è stato trovato.")
     
-    lista_bari = archivio_pulito["BARI"]
-    lista_napoli = archivio_pulito.get("NAPOLI", []) # Passati a NAPOLI
-    tot_estrazioni = len(lista_bari)
+    with open(filepath, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return data
 
-    data_reale = datetime.now().strftime("%d/%m/%Y")
-    if "info_concorso" in archivio and "data" in archivio["info_concorso"]:
-        data_reale = archivio["info_concorso"]["data"]
-    elif "data" in archivio:
-        data_reale = archivio["data"]
+def distanza_ciclometrica(n1, n2):
+    """Calcola la distanza minima sulla circonferenza a 90 numeri."""
+    d = abs(n1 - n2)
+    return min(d, 90 - d)
 
-    risultati_finali = {
-        "info_concorso": {"numero": "Lotto Intelligence V8", "data": data_reale},
-        "previsioni": {},
-        "storico_verificato": []
-    }
-
-    # 1. PREVISIONE CORRENTE (BARI - NAPOLI)
-    ultima_estrazione_bari = lista_bari[-1]
-    if isinstance(ultima_estrazione_bari, list) and len(ultima_estrazione_bari) >= 1:
-        try:
-            primo_bari = int(ultima_estrazione_bari[0])
-            ambata = fuori_90(primo_bari + FISSO_OTTIMIZZATO)
-            
-            abb_91 = calcola_abbinamento_91(ambata)
-            vert_ambata = calcola_vertibile(ambata)
-            
-            ambo_secco_principale = [ambata, abb_91]
-            ambi_secondari = [
-                [ambata, vert_ambata],
-                [abb_91, vert_ambata]
-            ]
-            
-            # Generazione previsione sia per BARI che per NAPOLI
-            for ruota_chiave in ["BARI", "NAPOLI"]:
-                if ruota_chiave in archivio_pulito and len(archivio_pulito[ruota_chiave]) > 0:
-                    risultati_finali["previsioni"][ruota_chiave] = {
-                        "numeri_estrazione": [int(n) for n in archivio_pulito[ruota_chiave][-1][:5]],
-                        "tipo_calcolo": f"Sommativo da 1° Bari ({primo_bari}) +{FISSO_OTTIMIZZATO}",
-                        "ambata": ambata,
-                        "ambo": ambo_secco_principale,
-                        "ambetti": ambi_secondari
-                    }
-        except (ValueError, IndexError):
-            pass
-
-    # 2. RICOSTRUZIONE STORICO (VERIFICA SU BARI E NAPOLI)
-    limite_storico = max(0, tot_estrazioni - 11)
+def calcola_matrice_cooccorrenze(estrazioni_ruota):
+    """
+    Costruisce una matrice 91x91 con le frequenze d'uscita in coppia 
+    per ogni combinazione di numeri su una specifica ruota.
+    """
+    co_matrix = np.zeros((91, 91), dtype=int)
     
-    for i in range(tot_estrazioni - 2, limite_storico - 1, -1):
-        if i < 0: break
-        
-        estrazione_b = lista_bari[i]
-        if not isinstance(estrazione_b, list) or len(estrazione_b) < 1: 
+    for estrazione in estrazioni_ruota:
+        nums = sorted(list(set(estrazione)))
+        n = len(nums)
+        for i in range(n):
+            for j in range(i + 1, n):
+                n1, n2 = nums[i], nums[j]
+                co_matrix[n1][n2] += 1
+                co_matrix[n2][n1] += 1
+                
+    return co_matrix
+
+def trova_abbinamenti_ambo(ambata, co_matrix, top_n=2):
+    """
+    Trova i migliori numeri da abbinare all'ambata basandosi sulla matrice 
+    di co-occorrenza, scartando i numeri consecutivi (distanza = 1).
+    """
+    frequenze_coppia = co_matrix[ambata].copy()
+    frequenze_coppia[ambata] = 0  # Escludiamo il numero stesso
+    
+    # Ordiniamo i numeri per frequenza decrescente
+    candidati_ordinati = np.argsort(frequenze_coppia)[::-1]
+    
+    abbinamenti = []
+    for cand in candidati_ordinati:
+        cand = int(cand)
+        if cand == 0:
             continue
-        
-        try:
-            p_bari = int(estrazione_b[0])
-            ambata_p = fuori_90(p_bari + FISSO_OTTIMIZZATO)
-            abb_91_p = calcola_abbinamento_91(ambata_p)
-            vert_p = calcola_vertibile(ambata_p)
             
-            colpi_passati = (tot_estrazioni - 1) - i
-            esito = "In gioco"
-            colpo_vincita = None
+        # Filtro distanza ciclometrica: evitiamo consecutivi (es. 45 e 46)
+        if distanza_ciclometrica(ambata, cand) > 1:
+            abbinamenti.append(cand)
             
-            for c in range(1, colpi_passati + 1):
-                curr_idx = i + c
-                if curr_idx >= tot_estrazioni: 
-                    break
-                
-                ba_nums = [int(n) for n in lista_bari[curr_idx][:5]]
-                # Controllo sulla ruota di NAPOLI
-                na_nums = [int(n) for n in lista_napoli[curr_idx][:5]] if curr_idx < len(lista_napoli) else []
-                
-                # Controllo vincite su BARI o NAPOLI
-                if (ambata_p in ba_nums and abb_91_p in ba_nums) or (ambata_p in na_nums and abb_91_p in na_nums):
-                    esito = "AMBO SECCO VINCENTE! (Base 91)"
-                    colpo_vincita = c
-                    break
-                elif (ambata_p in ba_nums and vert_p in ba_nums) or (ambata_p in na_nums and vert_p in na_nums):
-                    esito = "AMBO VINCENTE! (Vertibile)"
-                    colpo_vincita = c
-                    break
-                elif (abb_91_p in ba_nums and vert_p in ba_nums) or (abb_91_p in na_nums and vert_p in na_nums):
-                    esito = "AMBO VINCENTE! (Simmetrico/Vert)"
-                    colpo_vincita = c
-                    break
-                elif (ambata_p in ba_nums) or (ambata_p in na_nums):
-                    if esito == "In gioco":
-                        esito = "Ambata Vincente"
-                        colpo_vincita = c
+        if len(abbinamenti) == top_n:
+            break
             
-            if esito == "In gioco" and colpi_passati > 9:
-                esito = "Ciclo concluso (No esito)"
-            
-            data_label = f"Concorso Arretrat. -{colpi_passati}"
-            
-            # Etichetta corretta: BARI - NAPOLI
-            risultati_finali["storico_verificato"].append({
-                "data": data_label,
-                "ambata": ambata_p,
-                "ambo": f"{ambata_p} - {abb_91_p} | Vert: {vert_p}",
-                "colpi": f"{colpi_passati}° Colpo" if esito == "In gioco" else f"Esito al {colpo_vincita}° colpo" if colpo_vincita else "Chiuso",
-                "stato": esito
-            })
-        except (ValueError, IndexError):
-            pass
+    return abbinamenti
 
-    with open('risultati_v4.json', 'w', encoding='utf-8') as f:
-        json.dump(risultati_finali, f, indent=4, ensure_ascii=False)
+def elabora_previsioni(archivio):
+    """
+    Analizza l'archivio estrazioni e genera le previsioni per ciascuna ruota.
+    """
+    previsioni_per_ruota = {}
+    
+    # Raccogliamo tutte le ruote presenti nell'ultimo concorso
+    ultime_estrazioni = archivio[-1] if isinstance(archivio, list) else archivio.get('estrazioni', [])[-1]
+    ruote = [k for k in ultime_estrazioni.keys() if k.lower() != 'data' and k.lower() != 'concorso']
+
+    for ruota in ruote:
+        # Estraiamo lo storico delle cinquine per la ruota corrente
+        storico_ruota = []
+        for concorso in archivio:
+            if ruota in concorso and isinstance(concorso[ruota], list):
+                storico_ruota.append(concorso[ruota])
+        
+        if not storico_ruota:
+            continue
+
+        # 1. Calcolo Ambata Capogioco (basata sulla frequenza recente)
+        storico_recente = storico_ruota[-FINESTRA_AMBATE:]
+        conteggio_numeri = defaultdict(int)
+        for cinquina in storico_recente:
+            for num in cinquina:
+                conteggio_numeri[num] += 1
+                
+        # Prendiamo il numero più frequente nel periodo recente
+        ambata_principale = max(conteggio_numeri, key=conteggio_numeri.get)
+
+        # 2. Calcolo Matrice di Co-occorrenza sull'intero storico ruota
+        co_matrix = calcola_matrice_cooccorrenze(storico_ruota)
+
+        # 3. Trova i migliori abbinamenti per formare gli Ambi
+        abbinamenti = trova_abbinamenti_ambo(ambata_principale, co_matrix, top_n=2)
+
+        # 4. Formattazione Previsioni
+        ambi_generati = [[ambata_principale, abb] for abb in abbinamenti]
+        lunghetta = [ambata_principale] + abbinamenti
+
+        previsioni_per_ruota[ruota] = {
+            "ambata": ambata_principale,
+            "abbinamenti": abbinamenti,
+            "ambi_consigliati": ambi_generati,
+            "terzina_copertura": lunghetta,
+            "statistiche": {
+                "frequenza_ambata_recente": conteggio_numeri[ambata_principale],
+                "co_occorrenze_ambo_1": int(co_matrix[ambata_principale][abbinamenti[0]]) if len(abbinamenti) > 0 else 0,
+                "co_occorrenze_ambo_2": int(co_matrix[ambata_principale][abbinamenti[1]]) if len(abbinamenti) > 1 else 0
+            }
+        }
+
+    return previsioni_per_ruota
+
+def salvataggio_risultati(risultati, filepath):
+    """Salva l'output finale in formato JSON."""
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(risultati, f, indent=4, ensure_ascii=False)
+    print(f"✅ Previsioni salvate con successo in '{filepath}'")
+
+def main():
+    try:
+        print("📂 Caricamento archivio estrazioni...")
+        data = carica_estrazioni(FILE_ESTRAZIONI)
+        
+        # Gestisce sia il caso in cui il JSON sia una lista o un dizionario con chiave 'estrazioni'
+        archivio = data.get('estrazioni', data) if isinstance(data, dict) else data
+
+        print("🔮 Calcolo ambate e matrici di co-occorrenza per ambo...")
+        risultati = {
+            "ultimo_aggiornamento": archivio[-1].get("data", "N/D") if isinstance(archivio[-1], dict) else "N/D",
+            "previsioni": elabora_previsioni(archivio)
+        }
+
+        print("💾 Salvataggio risultati...")
+        salvataggio_risultati(risultati, FILE_OUTPUT)
+
+    except Exception as e:
+        print(f"❌ Errore durante l'esecuzione dello script: {e}")
 
 if __name__ == "__main__":
-    elabora_motore_sommativo()
+    main()
