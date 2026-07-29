@@ -4,70 +4,125 @@ import os
 
 def carica_estrazioni(filepath):
     if not os.path.exists(filepath):
+        print(f"❌ Errore: Il file '{filepath}' non esiste.")
         return None
-    with open(filepath, "r", encoding="utf-8") as f:
-        data = json.load(f)
+
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"❌ Errore durante la lettura: {e}")
+        return None
 
     estrazioni_pulite = {}
     for ruota, estrazioni in data.items():
         estrazioni_pulite[ruota] = [
             [int(n) for n in est] for est in estrazioni
         ]
+
     return estrazioni_pulite
 
 
-def analizza_frequenze(estrazioni_ruota):
-    frequenze = {n: 0 for n in range(1, 91)}
-    for estrazione in estrazioni_ruota:
-        for numero in estrazione:
-            if 1 <= numero <= 90:
-                frequenze[numero] += 1
-    return frequenze
+def calcola_statistiche_ruota(estrazioni):
+    totale = len(estrazioni)
 
+    # 1. Frequenze Generali
+    freq_totali = {n: 0 for n in range(1, 91)}
+    for est in estrazioni:
+        for num in est:
+            if 1 <= num <= 90:
+                freq_totali[num] += 1
 
-def analizza_ritardi(estrazioni_ruota):
+    # 2. Ritardi Attuali
     ritardi = {n: 0 for n in range(1, 91)}
-    for numero in range(1, 91):
-        ritardo = 0
+    for num in range(1, 91):
+        r = 0
         trovato = False
-        for estrazione in reversed(estrazioni_ruota):
-            if numero in estrazione:
+        for est in reversed(estrazioni):
+            if num in est:
                 trovato = True
                 break
-            ritardo += 1
-        ritardi[numero] = ritardo if trovato else len(estrazioni_ruota)
-    return ritardi
+            r += 1
+        ritardi[num] = r if trovato else totale
+
+    # 3. Trend Recente (Ultime 18 estrazioni ~ 1 mese e mezzo di gioco)
+    recenti = estrazioni[-18:] if totale >= 18 else estrazioni
+    freq_recenti = {n: 0 for n in range(1, 91)}
+    for est in recenti:
+        for num in est:
+            if 1 <= num <= 90:
+                freq_recenti[num] += 1
+
+    return freq_totali, ritardi, freq_recenti
 
 
-def genera_consiglio(top_frequenti, top_ritardatari):
-    """Genera i consigli di gioco basandosi sulle statistiche."""
-    # Ambata consigliata: Il primo ritardatario assoluto
+def pronostico_lottologo(freq_totali, ritardi, freq_recenti):
+    """Algoritmo avanzato di selezione delle combinazioni."""
+    # Ordiniamo i dati
+    top_ritardatari = sorted(ritardi.items(), key=lambda x: x[1], reverse=True)
+    top_frequenti = sorted(
+        freq_totali.items(), key=lambda x: x[1], reverse=True
+    )
+    top_caldi = sorted(freq_recenti.items(), key=lambda x: x[1], reverse=True)
+
+    # A. AMBATA CAPOGIOCO: Il maggior ritardatario
     ambata = top_ritardatari[0][0]
 
-    # Ambo consigliato: Il primo ritardatario + Il primo più frequente
-    # (Se coincidono, prende il secondo frequente)
-    freq1 = top_frequenti[0][0]
-    if freq1 == ambata:
-        freq1 = top_frequenti[1][0]
+    # B. PRIMO ABBINAMENTO: Il numero più "caldo" delle ultime 18 estrazioni (diverso dall'ambata)
+    abbinamento_caldo = next(
+        num for num, f in top_caldi if num != ambata
+    )
 
-    ambo = [ambata, freq1]
+    # C. SECONDO ABBINAMENTO: Numero frequente con Decina e Parità differenti (Filtro Simmetrico)
+    decina_ambata = ambata // 10
+    parita_ambata = ambata % 2
 
-    # Lunghetta/Terno: I primi 2 ritardatari + I primi 2 frequenti
-    lunghetta = list(
+    abbinamento_simmetrico = None
+    for num, _ in top_frequenti:
+        if num != ambata and num != abbinamento_caldo:
+            decina_num = num // 10
+            parita_num = num % 2
+            # Cerchiamo un numero con decina diversa e parità opposta
+            if decina_num != decina_ambata and parita_num != parita_ambata:
+                abbinamento_simmetrico = num
+                break
+
+    # Se il filtro è troppo stretto, prendiamo il secondo più frequente
+    if not abbinamento_simmetrico:
+        abbinamento_simmetrico = next(
+            num
+            for num, _ in top_frequenti
+            if num != ambata and num != abbinamento_caldo
+        )
+
+    # D. TERZO ABBINAMENTO (per la Quartina): Secondo ritardatario assoluto
+    secondo_ritardatario = next(
+        num for num, _ in top_ritardatari if num != ambata
+    )
+
+    # Composizione Giocate
+    ambo_secco = [ambata, abbinamento_caldo]
+    quartina = list(
         dict.fromkeys(
             [
-                top_ritardatari[0][0],
-                top_ritardatari[1][0],
-                top_frequenti[0][0],
-                top_frequenti[1][0],
+                ambata,
+                abbinamento_caldo,
+                abbinamento_simmetrico,
+                secondo_ritardatario,
             ]
         )
     )
 
     return {
         "ambata": ambata,
-        "ambo": ambo,
-        "quartina": lunghetta,
+        "ambo": ambo_secco,
+        "quartina": quartina,
+        "top_frequenti": [
+            {"numero": n, "frequenza": f} for n, f in top_frequenti[:5]
+        ],
+        "top_ritardatari": [
+            {"numero": n, "ritardo": r} for n, r in top_ritardatari[:5]
+        ],
     }
 
 
@@ -77,6 +132,7 @@ def main():
 
     dati = carica_estrazioni(file_ingresso)
     if not dati:
+        print("Impossibile procedere: dati non validi o mancanti.")
         return
 
     risultati_finali = {}
@@ -85,32 +141,26 @@ def main():
         if not estrazioni:
             continue
 
-        freq = analizza_frequenze(estrazioni)
-        rit = analizza_ritardi(estrazioni)
-
-        top_frequenti = sorted(freq.items(), key=lambda x: x[1], reverse=True)[
-            :5
-        ]
-        top_ritardatari = sorted(
-            rit.items(), key=lambda x: x[1], reverse=True
-        )[:5]
-
-        # Genera le giocate consigliate
-        consiglio = genera_consiglio(top_frequenti, top_ritardatari)
+        freq_tot, ritardi, freq_rec = calcola_statistiche_ruota(estrazioni)
+        analisi = pronostico_lottologo(freq_tot, ritardi, freq_rec)
 
         risultati_finali[ruota] = {
             "totale_estrazioni_analizzate": len(estrazioni),
-            "top_frequenti": [
-                {"numero": num, "frequenza": f} for num, f in top_frequenti
-            ],
-            "top_ritardatari": [
-                {"numero": num, "ritardo": r} for num, r in top_ritardatari
-            ],
-            "consiglio_gioco": consiglio,
+            "top_frequenti": analisi["top_frequenti"],
+            "top_ritardatari": analisi["top_ritardatari"],
+            "consiglio_gioco": {
+                "ambata": analisi["ambata"],
+                "ambo": analisi["ambo"],
+                "quartina": analisi["quartina"],
+            },
         }
 
-    with open(file_uscita, "w", encoding="utf-8") as f:
-        json.dump(risultati_finali, f, indent=4, ensure_ascii=False)
+    try:
+        with open(file_uscita, "w", encoding="utf-8") as f:
+            json.dump(risultati_finali, f, indent=4, ensure_ascii=False)
+        print(f"✅ Analisi completata! File '{file_uscita}' aggiornato.")
+    except Exception as e:
+        print(f"❌ Errore durante il salvataggio: {e}")
 
 
 if __name__ == "__main__":
