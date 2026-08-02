@@ -1,602 +1,90 @@
 {
-    "Bari": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 47,
-                "frequenza": 249
-            },
-            {
-                "numero": 48,
-                "frequenza": 246
-            },
-            {
-                "numero": 66,
-                "frequenza": 245
-            },
-            {
-                "numero": 81,
-                "frequenza": 243
-            },
-            {
-                "numero": 3,
-                "frequenza": 240
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 67,
-                "ritardo": 141
-            },
-            {
-                "numero": 10,
-                "ritardo": 120
-            },
-            {
-                "numero": 21,
-                "ritardo": 66
-            },
-            {
-                "numero": 12,
-                "ritardo": 63
-            },
-            {
-                "numero": 17,
-                "ritardo": 62
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 67,
+    "tipo_analisi": "Isotopie con inseguimento a 6 colpi",
+    "previsioni_top": [
+        {
+            "id": "FIRENZE_NAPOLI_pos3_cad0",
+            "ruota_principale": "FIRENZE",
+            "ruota_secondaria": "NAPOLI",
+            "motivo": "Isotopia 3ª pos (N. 10/10)",
+            "ambata": 80,
             "ambo": [
-                67,
-                1
-            ],
-            "quartina": [
-                67,
-                1,
-                48,
+                80,
                 10
-            ]
-        }
-    },
-    "Cagliari": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 1,
-                "frequenza": 257
-            },
-            {
-                "numero": 70,
-                "frequenza": 249
-            },
-            {
-                "numero": 56,
-                "frequenza": 247
-            },
-            {
-                "numero": 6,
-                "frequenza": 244
-            },
-            {
-                "numero": 51,
-                "frequenza": 242
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 19,
-                "ritardo": 72
-            },
-            {
-                "numero": 62,
-                "ritardo": 65
-            },
-            {
-                "numero": 54,
-                "ritardo": 61
-            },
-            {
-                "numero": 90,
-                "ritardo": 52
-            },
-            {
-                "numero": 34,
-                "ritardo": 50
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 19,
-            "ambo": [
-                19,
-                72
             ],
             "quartina": [
-                19,
-                72,
-                70,
-                62
-            ]
-        }
-    },
-    "Firenze": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 73,
-                "frequenza": 258
-            },
-            {
-                "numero": 74,
-                "frequenza": 245
-            },
-            {
-                "numero": 44,
-                "frequenza": 244
-            },
-            {
-                "numero": 13,
-                "frequenza": 243
-            },
-            {
-                "numero": 56,
-                "frequenza": 240
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 53,
-                "ritardo": 77
-            },
-            {
-                "numero": 16,
-                "ritardo": 71
-            },
-            {
-                "numero": 66,
-                "ritardo": 71
-            },
-            {
-                "numero": 24,
-                "ritardo": 68
-            },
-            {
-                "numero": 11,
-                "ritardo": 65
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 53,
-            "ambo": [
-                53,
+                80,
+                10,
                 61
             ],
-            "quartina": [
-                53,
-                61,
-                74,
-                16
-            ]
-        }
-    },
-    "Genova": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 5,
-                "frequenza": 251
-            },
-            {
-                "numero": 86,
-                "frequenza": 241
-            },
-            {
-                "numero": 10,
-                "frequenza": 239
-            },
-            {
-                "numero": 81,
-                "frequenza": 239
-            },
-            {
-                "numero": 19,
-                "frequenza": 238
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 63,
-                "ritardo": 82
-            },
-            {
-                "numero": 50,
-                "ritardo": 73
-            },
-            {
-                "numero": 78,
-                "ritardo": 63
-            },
-            {
-                "numero": 9,
-                "ritardo": 61
-            },
-            {
-                "numero": 21,
-                "ritardo": 53
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 63,
+            "colpo_attuale": 1
+        },
+        {
+            "id": "BARI_FIRENZE_pos4_cad7",
+            "ruota_principale": "BARI",
+            "ruota_secondaria": "FIRENZE",
+            "motivo": "Isotopia 4ª pos (N. 47/27)",
+            "ambata": 27,
             "ambo": [
-                63,
-                32
+                27,
+                37
             ],
             "quartina": [
-                63,
-                32,
-                86,
-                50
-            ]
-        }
-    },
-    "Milano": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 40,
-                "frequenza": 252
-            },
-            {
-                "numero": 33,
-                "frequenza": 244
-            },
-            {
-                "numero": 82,
-                "frequenza": 243
-            },
-            {
-                "numero": 80,
-                "frequenza": 241
-            },
-            {
-                "numero": 15,
-                "frequenza": 240
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 65,
-                "ritardo": 86
-            },
-            {
-                "numero": 39,
-                "ritardo": 79
-            },
-            {
-                "numero": 6,
-                "ritardo": 68
-            },
-            {
-                "numero": 55,
-                "ritardo": 55
-            },
-            {
-                "numero": 9,
-                "ritardo": 51
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 65,
-            "ambo": [
-                65,
-                49
-            ],
-            "quartina": [
-                65,
-                49,
-                40,
-                39
-            ]
-        }
-    },
-    "Napoli": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 45,
-                "frequenza": 262
-            },
-            {
-                "numero": 43,
-                "frequenza": 252
-            },
-            {
-                "numero": 20,
-                "frequenza": 248
-            },
-            {
-                "numero": 80,
-                "frequenza": 247
-            },
-            {
-                "numero": 13,
-                "frequenza": 245
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 5,
-                "ritardo": 76
-            },
-            {
-                "numero": 70,
-                "ritardo": 76
-            },
-            {
-                "numero": 67,
-                "ritardo": 72
-            },
-            {
-                "numero": 79,
-                "ritardo": 67
-            },
-            {
-                "numero": 4,
-                "ritardo": 62
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 5,
-            "ambo": [
-                5,
-                8
-            ],
-            "quartina": [
-                5,
-                8,
-                20,
-                70
-            ]
-        }
-    },
-    "Palermo": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 30,
-                "frequenza": 254
-            },
-            {
-                "numero": 41,
-                "frequenza": 249
-            },
-            {
-                "numero": 90,
-                "frequenza": 247
-            },
-            {
-                "numero": 26,
-                "frequenza": 242
-            },
-            {
-                "numero": 65,
-                "frequenza": 242
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 53,
-                "ritardo": 78
-            },
-            {
-                "numero": 83,
-                "ritardo": 74
-            },
-            {
-                "numero": 13,
-                "ritardo": 68
-            },
-            {
-                "numero": 25,
-                "ritardo": 52
-            },
-            {
-                "numero": 68,
-                "ritardo": 51
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 53,
-            "ambo": [
-                53,
-                40
-            ],
-            "quartina": [
-                53,
-                40,
-                30,
-                83
-            ]
-        }
-    },
-    "Roma": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 6,
-                "frequenza": 251
-            },
-            {
-                "numero": 45,
-                "frequenza": 247
-            },
-            {
-                "numero": 79,
-                "frequenza": 240
-            },
-            {
-                "numero": 14,
-                "frequenza": 238
-            },
-            {
-                "numero": 9,
-                "frequenza": 237
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 73,
-                "ritardo": 61
-            },
-            {
-                "numero": 13,
-                "ritardo": 57
-            },
-            {
-                "numero": 25,
-                "ritardo": 57
-            },
-            {
-                "numero": 27,
-                "ritardo": 53
-            },
-            {
-                "numero": 34,
-                "ritardo": 48
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 73,
-            "ambo": [
-                73,
-                58
-            ],
-            "quartina": [
-                73,
-                58,
-                6,
-                13
-            ]
-        }
-    },
-    "Torino": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 42,
-                "frequenza": 257
-            },
-            {
-                "numero": 26,
-                "frequenza": 247
-            },
-            {
-                "numero": 85,
-                "frequenza": 245
-            },
-            {
-                "numero": 46,
-                "frequenza": 241
-            },
-            {
-                "numero": 76,
-                "frequenza": 241
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 37,
-                "ritardo": 77
-            },
-            {
-                "numero": 25,
-                "ritardo": 62
-            },
-            {
-                "numero": 50,
-                "ritardo": 62
-            },
-            {
-                "numero": 9,
-                "ritardo": 51
-            },
-            {
-                "numero": 29,
-                "ritardo": 51
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 37,
-            "ambo": [
+                27,
                 37,
-                35
+                1
             ],
-            "quartina": [
-                37,
-                35,
-                42,
-                25
-            ]
-        }
-    },
-    "Venezia": {
-        "totale_estrazioni_analizzate": 3921,
-        "top_frequenti": [
-            {
-                "numero": 53,
-                "frequenza": 257
-            },
-            {
-                "numero": 34,
-                "frequenza": 251
-            },
-            {
-                "numero": 18,
-                "frequenza": 247
-            },
-            {
-                "numero": 22,
-                "frequenza": 245
-            },
-            {
-                "numero": 74,
-                "frequenza": 244
-            }
-        ],
-        "top_ritardatari": [
-            {
-                "numero": 31,
-                "ritardo": 99
-            },
-            {
-                "numero": 47,
-                "ritardo": 87
-            },
-            {
-                "numero": 57,
-                "ritardo": 64
-            },
-            {
-                "numero": 28,
-                "ritardo": 63
-            },
-            {
-                "numero": 81,
-                "ritardo": 48
-            }
-        ],
-        "consiglio_gioco": {
-            "ambata": 31,
+            "colpo_attuale": 1
+        },
+        {
+            "id": "BARI_PALERMO_pos4_cad7",
+            "ruota_principale": "BARI",
+            "ruota_secondaria": "PALERMO",
+            "motivo": "Isotopia 4ª pos (N. 47/57)",
+            "ambata": 47,
             "ambo": [
-                31,
-                11
+                47,
+                57
             ],
             "quartina": [
-                31,
-                11,
-                18,
-                47
-            ]
+                47,
+                57,
+                78
+            ],
+            "colpo_attuale": 1
+        },
+        {
+            "id": "BARI_ROMA_pos4_cad7",
+            "ruota_principale": "BARI",
+            "ruota_secondaria": "ROMA",
+            "motivo": "Isotopia 4ª pos (N. 47/7)",
+            "ambata": 47,
+            "ambo": [
+                47,
+                7
+            ],
+            "quartina": [
+                47,
+                7,
+                78
+            ],
+            "colpo_attuale": 1
+        },
+        {
+            "id": "CAGLIARI_PALERMO_pos3_cad4",
+            "ruota_principale": "CAGLIARI",
+            "ruota_secondaria": "PALERMO",
+            "motivo": "Isotopia 3ª pos (N. 4/24)",
+            "ambata": 14,
+            "ambo": [
+                14,
+                24
+            ],
+            "quartina": [
+                14,
+                24,
+                72
+            ],
+            "colpo_attuale": 1
         }
-    }
+    ]
 }
