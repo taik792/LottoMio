@@ -1,128 +1,128 @@
 import json
 import os
 
+# Mappa delle ruote Diametrali / Gemelle storiche
+RUOTE_GEMELLE = {
+    "BARI": "NAPOLI",
+    "CAGLIARI": "PALERMO",
+    "FIRENZE": "ROMA",
+    "GENOVA": "TORINO",
+    "MILANO": "VENEZIA",
+    "NAPOLI": "BARI",
+    "PALERMO": "CAGLIARI",
+    "ROMA": "FIRENZE",
+    "TORINO": "GENOVA",
+    "VENEZIA": "MILANO",
+}
+
 
 def carica_estrazioni(filepath):
     if not os.path.exists(filepath):
-        print(f"❌ Errore: Il file '{filepath}' non esiste.")
+        print(f"❌ Errore: File '{filepath}' non trovato.")
         return None
 
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
     except Exception as e:
-        print(f"❌ Errore durante la lettura: {e}")
+        print(f"❌ Errore lettura JSON: {e}")
         return None
 
     estrazioni_pulite = {}
     for ruota, estrazioni in data.items():
-        estrazioni_pulite[ruota] = [
+        # Pulizia nomi ruote
+        ruota_clean = ruota.upper().strip()
+        estrazioni_pulite[ruota_clean] = [
             [int(n) for n in est] for est in estrazioni
         ]
 
     return estrazioni_pulite
 
 
-def calcola_statistiche_ruota(estrazioni):
-    totale = len(estrazioni)
+def trova_condizioni_isotope(dati):
+    """Cerca numeri o cadenze identiche nella STESSA posizione tra due ruote."""
+    condizioni = []
 
-    # 1. Frequenze Generali
-    freq_totali = {n: 0 for n in range(1, 91)}
-    for est in estrazioni:
+    # Prendiamo l'ultima estrazione disponibile per ogni ruota
+    ultime_estrazioni = {}
+    for ruota, lista_est in dati.items():
+        if lista_est:
+            ultime_estrazioni[ruota] = lista_est[-1]
+
+    ruote = list(ultime_estrazioni.keys())
+
+    for i in range(len(ruote)):
+        for j in range(i + 1, len(ruote)):
+            r1, r2 = ruote[i], ruote[j]
+            est1, est2 = ultime_estrazioni[r1], ultime_estrazioni[r2]
+
+            # Controlliamo posizione per posizione (0 to 4)
+            for pos in range(5):
+                n1, n2 = est1[pos], est2[pos]
+                cad1, cad2 = n1 % 10, n2 % 10
+
+                # Condizione 1: Numero Isotopo Perfetto (stesso numero stessa pos)
+                # Condizione 2: Cadenza Isotopa (stessa cadenza stessa pos)
+                if n1 == n2 or cad1 == cad2:
+                    punti_forza = 2 if n1 == n2 else 1
+                    condizioni.append(
+                        {
+                            "ruota1": r1,
+                            "ruota2": r2,
+                            "posizione": pos + 1,
+                            "num1": n1,
+                            "num2": n2,
+                            "cadenza": cad1,
+                            "forza": punti_forza,
+                        }
+                    )
+
+    # Ordina per forza (prima le isotopie di numero secco, poi di cadenza)
+    condizioni.sort(key=lambda x: x["forza"], reverse=True)
+    return condizioni
+
+
+def calcola_pronostico_coppia(r1, r2, dati, cond):
+    """Genera il pronostico mirato per la coppia di ruote rilevata."""
+    est1 = dati.get(r1, [])
+    est2 = dati.get(r2, [])
+
+    # Calcolo frequenze combinate sulle due ruote (ultime 20 estrazioni)
+    freq_combinata = {n: 0 for n in range(1, 91)}
+    for est in est1[-20:] + est2[-20:]:
         for num in est:
-            if 1 <= num <= 90:
-                freq_totali[num] += 1
+            freq_combinata[num] += 1
 
-    # 2. Ritardi Attuali
-    ritardi = {n: 0 for n in range(1, 91)}
-    for num in range(1, 91):
-        r = 0
-        trovato = False
-        for est in reversed(estrazioni):
-            if num in est:
-                trovato = True
-                break
-            r += 1
-        ritardi[num] = r if trovato else totale
+    cadenza_target = cond["cadenza"]
+    numeri_cadenza = [n for n in range(1, 91) if n % 10 == cadenza_target]
 
-    # 3. Trend Recente (Ultime 18 estrazioni ~ 1 mese e mezzo di gioco)
-    recenti = estrazioni[-18:] if totale >= 18 else estrazioni
-    freq_recenti = {n: 0 for n in range(1, 91)}
-    for est in recenti:
-        for num in est:
-            if 1 <= num <= 90:
-                freq_recenti[num] += 1
-
-    return freq_totali, ritardi, freq_recenti
-
-
-def pronostico_lottologo(freq_totali, ritardi, freq_recenti):
-    """Algoritmo avanzato di selezione delle combinazioni."""
-    # Ordiniamo i dati
-    top_ritardatari = sorted(ritardi.items(), key=lambda x: x[1], reverse=True)
-    top_frequenti = sorted(
-        freq_totali.items(), key=lambda x: x[1], reverse=True
-    )
-    top_caldi = sorted(freq_recenti.items(), key=lambda x: x[1], reverse=True)
-
-    # A. AMBATA CAPOGIOCO: Il maggior ritardatario
-    ambata = top_ritardatari[0][0]
-
-    # B. PRIMO ABBINAMENTO: Il numero più "caldo" delle ultime 18 estrazioni (diverso dall'ambata)
-    abbinamento_caldo = next(
-        num for num, f in top_caldi if num != ambata
+    # Ordina i numeri della cadenza per frequenza recente combinata
+    numeri_cadenza_ordinati = sorted(
+        numeri_cadenza, key=lambda n: freq_combinata[n], reverse=True
     )
 
-    # C. SECONDO ABBINAMENTO: Numero frequente con Decina e Parità differenti (Filtro Simmetrico)
-    decina_ambata = ambata // 10
-    parita_ambata = ambata % 2
+    ambata = numeri_cadenza_ordinati[0]
+    abbinamento1 = numeri_cadenza_ordinati[1]
 
-    abbinamento_simmetrico = None
-    for num, _ in top_frequenti:
-        if num != ambata and num != abbinamento_caldo:
-            decina_num = num // 10
-            parita_num = num % 2
-            # Cerchiamo un numero con decina diversa e parità opposta
-            if decina_num != decina_ambata and parita_num != parita_ambata:
-                abbinamento_simmetrico = num
-                break
-
-    # Se il filtro è troppo stretto, prendiamo il secondo più frequente
-    if not abbinamento_simmetrico:
-        abbinamento_simmetrico = next(
-            num
-            for num, _ in top_frequenti
-            if num != ambata and num != abbinamento_caldo
+    # Terzo numero: il più frequente in assoluto sulle due ruote non appartenente alla cadenza
+    altro_frequente = next(
+        n
+        for n, f in sorted(
+            freq_combinata.items(), key=lambda x: x[1], reverse=True
         )
-
-    # D. TERZO ABBINAMENTO (per la Quartina): Secondo ritardatario assoluto
-    secondo_ritardatario = next(
-        num for num, _ in top_ritardatari if num != ambata
+        if n % 10 != cadenza_target
     )
 
-    # Composizione Giocate
-    ambo_secco = [ambata, abbinamento_caldo]
-    quartina = list(
-        dict.fromkeys(
-            [
-                ambata,
-                abbinamento_caldo,
-                abbinamento_simmetrico,
-                secondo_ritardatario,
-            ]
-        )
-    )
+    ambo = [ambata, abbinamento1]
+    terno_quartina = [ambata, abbinamento1, altro_frequente]
 
     return {
+        "ruota_principale": r1,
+        "ruota_secondaria": r2,
+        "motivo": f"Isotopia in {cond['posizione']}ª pos (N. {cond['num1']} / {cond['num2']} - Cad. {cadenza_target})",
         "ambata": ambata,
-        "ambo": ambo_secco,
-        "quartina": quartina,
-        "top_frequenti": [
-            {"numero": n, "frequenza": f} for n, f in top_frequenti[:5]
-        ],
-        "top_ritardatari": [
-            {"numero": n, "ritardo": r} for n, r in top_ritardatari[:5]
-        ],
+        "ambo": ambo,
+        "quartina": terno_quartina,
     }
 
 
@@ -132,35 +132,41 @@ def main():
 
     dati = carica_estrazioni(file_ingresso)
     if not dati:
-        print("Impossibile procedere: dati non validi o mancanti.")
         return
 
-    risultati_finali = {}
+    # 1. Trova le migliori condizioni Isotope
+    condizioni = trova_condizioni_isotope(dati)
 
-    for ruota, estrazioni in dati.items():
-        if not estrazioni:
-            continue
+    pronostici_selezionati = []
+    coppie_usate = set()
 
-        freq_tot, ritardi, freq_rec = calcola_statistiche_ruota(estrazioni)
-        analisi = pronostico_lottologo(freq_tot, ritardi, freq_rec)
+    # Prendiamo fino alle 3 migliori condizioni non sovrapposte
+    for cond in condizioni:
+        r1, r2 = cond["ruota1"], cond["ruota2"]
+        coppia_key = tuple(sorted([r1, r2]))
 
-        risultati_finali[ruota] = {
-            "totale_estrazioni_analizzate": len(estrazioni),
-            "top_frequenti": analisi["top_frequenti"],
-            "top_ritardatari": analisi["top_ritardatari"],
-            "consiglio_gioco": {
-                "ambata": analisi["ambata"],
-                "ambo": analisi["ambo"],
-                "quartina": analisi["quartina"],
-            },
-        }
+        if coppia_key not in coppie_usate:
+            pronostico = calcola_pronostico_coppia(r1, r2, dati, cond)
+            pronostici_selezionati.append(pronostico)
+            coppie_usate.add(coppia_key)
+
+        if len(pronostici_selezionati) >= 3:
+            break
+
+    # Strutturazione output JSON
+    output_json = {
+        "tipo_analisi": "Isotopie e Cadenze Gemelle",
+        "previsioni_top": pronostici_selezionati,
+    }
 
     try:
         with open(file_uscita, "w", encoding="utf-8") as f:
-            json.dump(risultati_finali, f, indent=4, ensure_ascii=False)
-        print(f"✅ Analisi completata! File '{file_uscita}' aggiornato.")
+            json.dump(output_json, f, indent=4, ensure_ascii=False)
+        print(
+            f"✅ Analisi Isotopa completata! Salvate {len(pronostici_selezionati)} previsioni top in '{file_uscita}'."
+        )
     except Exception as e:
-        print(f"❌ Errore durante il salvataggio: {e}")
+        print(f"❌ Errore salvataggio: {e}")
 
 
 if __name__ == "__main__":
