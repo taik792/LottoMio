@@ -52,6 +52,12 @@
             color: #ffffff;
             letter-spacing: 1px;
         }
+        .colpo-badge {
+            font-size: 0.85em;
+            color: #ffb703;
+            margin-top: 4px;
+            font-weight: bold;
+        }
         .motivo-badge {
             background: #2a384e;
             color: #00d2ff;
@@ -103,15 +109,15 @@
 <body>
 
     <h1>🎯 PREVISIONI ISOTOPE & CADENZE</h1>
-    <div class="subtitle">Analisi statistica ad alta concentrazione su Ruote Gemelle</div>
+    <div class="subtitle">Inseguimento statistico dinamico (Max 6 Colpi)</div>
 
-    <div id="loading">Ricerca condizioni isotope in corso...</div>
+    <div id="loading">Caricamento previsioni attive in corso...</div>
     <div class="container" id="previsioni-container"></div>
 
     <script>
         fetch('risultati_v4.json')
             .then(response => {
-                if (!response.ok) throw new Error('File risultati_v4.json non trovato');
+                if (!response.ok) throw new Error('Impossibile caricare risultati_v4.json');
                 return response.json();
             })
             .then(data => {
@@ -119,11 +125,11 @@
                 const container = document.getElementById('previsioni-container');
 
                 if (!data.previsioni_top || data.previsioni_top.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; color:#ffb703;">Nessuna condizione isotopa forte rilevata nell\'ultima estrazione.</div>';
+                    container.innerHTML = '<div style="text-align:center; color:#ffb703;">Nessuna previsione attiva al momento.</div>';
                     return;
                 }
 
-                data.previsioni_top.forEach((prev, index) => {
+                data.previsioni_top.forEach(prev => {
                     const card = document.createElement('div');
                     card.className = 'card';
 
@@ -132,7 +138,10 @@
 
                     card.innerHTML = `
                         <div class="card-header">
-                            <div class="ruote-title">📍 ${prev.ruota_principale} - ${prev.ruota_secondaria}</div>
+                            <div>
+                                <div class="ruote-title">📍 ${prev.ruota_principale} - ${prev.ruota_secondaria}</div>
+                                <div class="colpo-badge">⏱️ Colpo di gioco: <strong>${prev.colpo_attuale} di 6</strong></div>
+                            </div>
                             <div class="motivo-badge">${prev.motivo}</div>
                         </div>
                         <div class="pronostico-grid">
@@ -155,7 +164,8 @@
                 });
             })
             .catch(error => {
-                document.getElementById('loading').innerHTML = `❌ Errore nel caricamento dei dati: ${error.message}`;
+                console.error(error);
+                document.getElementById('loading').innerHTML = `❌ Errore durante il caricamento dei dati.<br><small>${error.message}</small>`;
             });
     </script>
 </body>
