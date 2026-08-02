@@ -1,10 +1,10 @@
 {
     "Bari": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 47,
-                "frequenza": 248
+                "frequenza": 249
             },
             {
                 "numero": 48,
@@ -26,23 +26,23 @@
         "top_ritardatari": [
             {
                 "numero": 67,
-                "ritardo": 139
+                "ritardo": 141
             },
             {
                 "numero": 10,
-                "ritardo": 118
+                "ritardo": 120
             },
             {
                 "numero": 21,
-                "ritardo": 64
+                "ritardo": 66
             },
             {
                 "numero": 12,
-                "ritardo": 61
+                "ritardo": 63
             },
             {
                 "numero": 17,
-                "ritardo": 60
+                "ritardo": 62
             }
         ],
         "consiglio_gioco": {
@@ -60,7 +60,7 @@
         }
     },
     "Cagliari": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 1,
@@ -80,29 +80,29 @@
             },
             {
                 "numero": 51,
-                "frequenza": 241
+                "frequenza": 242
             }
         ],
         "top_ritardatari": [
             {
                 "numero": 19,
-                "ritardo": 70
+                "ritardo": 72
             },
             {
                 "numero": 62,
-                "ritardo": 63
+                "ritardo": 65
             },
             {
                 "numero": 54,
-                "ritardo": 59
+                "ritardo": 61
             },
             {
                 "numero": 90,
-                "ritardo": 50
+                "ritardo": 52
             },
             {
                 "numero": 34,
-                "ritardo": 48
+                "ritardo": 50
             }
         ],
         "consiglio_gioco": {
@@ -120,7 +120,7 @@
         }
     },
     "Firenze": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 73,
@@ -131,11 +131,11 @@
                 "frequenza": 245
             },
             {
-                "numero": 13,
-                "frequenza": 243
+                "numero": 44,
+                "frequenza": 244
             },
             {
-                "numero": 44,
+                "numero": 13,
                 "frequenza": 243
             },
             {
@@ -146,23 +146,23 @@
         "top_ritardatari": [
             {
                 "numero": 53,
-                "ritardo": 75
+                "ritardo": 77
             },
             {
                 "numero": 16,
-                "ritardo": 69
+                "ritardo": 71
             },
             {
                 "numero": 66,
-                "ritardo": 69
+                "ritardo": 71
             },
             {
                 "numero": 24,
-                "ritardo": 66
+                "ritardo": 68
             },
             {
                 "numero": 11,
-                "ritardo": 63
+                "ritardo": 65
             }
         ],
         "consiglio_gioco": {
@@ -180,7 +180,7 @@
         }
     },
     "Genova": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 5,
@@ -191,12 +191,12 @@
                 "frequenza": 241
             },
             {
-                "numero": 81,
+                "numero": 10,
                 "frequenza": 239
             },
             {
-                "numero": 10,
-                "frequenza": 238
+                "numero": 81,
+                "frequenza": 239
             },
             {
                 "numero": 19,
@@ -206,41 +206,41 @@
         "top_ritardatari": [
             {
                 "numero": 63,
-                "ritardo": 80
+                "ritardo": 82
             },
             {
                 "numero": 50,
-                "ritardo": 71
+                "ritardo": 73
             },
             {
                 "numero": 78,
-                "ritardo": 61
+                "ritardo": 63
             },
             {
                 "numero": 9,
-                "ritardo": 59
+                "ritardo": 61
             },
             {
                 "numero": 21,
-                "ritardo": 51
+                "ritardo": 53
             }
         ],
         "consiglio_gioco": {
             "ambata": 63,
             "ambo": [
                 63,
-                66
+                32
             ],
             "quartina": [
                 63,
-                66,
+                32,
                 86,
                 50
             ]
         }
     },
     "Milano": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 40,
@@ -266,41 +266,41 @@
         "top_ritardatari": [
             {
                 "numero": 65,
-                "ritardo": 84
+                "ritardo": 86
             },
             {
                 "numero": 39,
-                "ritardo": 77
+                "ritardo": 79
             },
             {
                 "numero": 6,
-                "ritardo": 66
+                "ritardo": 68
             },
             {
                 "numero": 55,
-                "ritardo": 53
+                "ritardo": 55
             },
             {
                 "numero": 9,
-                "ritardo": 49
+                "ritardo": 51
             }
         ],
         "consiglio_gioco": {
             "ambata": 65,
             "ambo": [
                 65,
-                10
+                49
             ],
             "quartina": [
                 65,
-                10,
+                49,
                 40,
                 39
             ]
         }
     },
     "Napoli": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 45,
@@ -326,41 +326,41 @@
         "top_ritardatari": [
             {
                 "numero": 5,
-                "ritardo": 74
+                "ritardo": 76
             },
             {
                 "numero": 70,
-                "ritardo": 74
+                "ritardo": 76
             },
             {
                 "numero": 67,
-                "ritardo": 70
+                "ritardo": 72
             },
             {
                 "numero": 79,
-                "ritardo": 65
+                "ritardo": 67
             },
             {
                 "numero": 4,
-                "ritardo": 60
+                "ritardo": 62
             }
         ],
         "consiglio_gioco": {
             "ambata": 5,
             "ambo": [
                 5,
-                31
+                8
             ],
             "quartina": [
                 5,
-                31,
+                8,
                 20,
                 70
             ]
         }
     },
     "Palermo": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 30,
@@ -386,41 +386,41 @@
         "top_ritardatari": [
             {
                 "numero": 53,
-                "ritardo": 76
+                "ritardo": 78
             },
             {
                 "numero": 83,
-                "ritardo": 72
+                "ritardo": 74
             },
             {
                 "numero": 13,
-                "ritardo": 66
+                "ritardo": 68
             },
             {
-                "numero": 32,
-                "ritardo": 61
+                "numero": 25,
+                "ritardo": 52
             },
             {
-                "numero": 11,
-                "ritardo": 50
+                "numero": 68,
+                "ritardo": 51
             }
         ],
         "consiglio_gioco": {
             "ambata": 53,
             "ambo": [
                 53,
-                86
+                40
             ],
             "quartina": [
                 53,
-                86,
+                40,
                 30,
                 83
             ]
         }
     },
     "Roma": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 6,
@@ -446,41 +446,41 @@
         "top_ritardatari": [
             {
                 "numero": 73,
-                "ritardo": 59
+                "ritardo": 61
             },
             {
                 "numero": 13,
-                "ritardo": 55
+                "ritardo": 57
             },
             {
                 "numero": 25,
-                "ritardo": 55
+                "ritardo": 57
             },
             {
                 "numero": 27,
-                "ritardo": 51
+                "ritardo": 53
             },
             {
                 "numero": 34,
-                "ritardo": 46
+                "ritardo": 48
             }
         ],
         "consiglio_gioco": {
             "ambata": 73,
             "ambo": [
                 73,
-                8
+                58
             ],
             "quartina": [
                 73,
-                8,
+                58,
                 6,
                 13
             ]
         }
     },
     "Torino": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 42,
@@ -506,23 +506,23 @@
         "top_ritardatari": [
             {
                 "numero": 37,
-                "ritardo": 75
+                "ritardo": 77
             },
             {
                 "numero": 25,
-                "ritardo": 60
+                "ritardo": 62
             },
             {
                 "numero": 50,
-                "ritardo": 60
+                "ritardo": 62
             },
             {
                 "numero": 9,
-                "ritardo": 49
+                "ritardo": 51
             },
             {
                 "numero": 29,
-                "ritardo": 49
+                "ritardo": 51
             }
         ],
         "consiglio_gioco": {
@@ -540,7 +540,7 @@
         }
     },
     "Venezia": {
-        "totale_estrazioni_analizzate": 3919,
+        "totale_estrazioni_analizzate": 3921,
         "top_frequenti": [
             {
                 "numero": 53,
@@ -548,7 +548,7 @@
             },
             {
                 "numero": 34,
-                "frequenza": 250
+                "frequenza": 251
             },
             {
                 "numero": 18,
@@ -559,30 +559,30 @@
                 "frequenza": 245
             },
             {
-                "numero": 89,
+                "numero": 74,
                 "frequenza": 244
             }
         ],
         "top_ritardatari": [
             {
                 "numero": 31,
-                "ritardo": 97
+                "ritardo": 99
             },
             {
                 "numero": 47,
-                "ritardo": 85
+                "ritardo": 87
             },
             {
                 "numero": 57,
-                "ritardo": 62
+                "ritardo": 64
             },
             {
                 "numero": 28,
-                "ritardo": 61
+                "ritardo": 63
             },
             {
-                "numero": 1,
-                "ritardo": 58
+                "numero": 81,
+                "ritardo": 48
             }
         ],
         "consiglio_gioco": {
