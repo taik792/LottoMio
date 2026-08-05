@@ -1,1 +1,104 @@
-[]
+[
+    {
+        "id": "BARI_FIRENZE_pos5",
+        "ruota_principale": "BARI",
+        "ruota_secondaria": "FIRENZE",
+        "motivo": "Isotopia 5ª pos (N. 43/43)",
+        "ambata": 43,
+        "ambo": [
+            43,
+            63
+        ],
+        "quartina": [
+            43,
+            63,
+            1
+        ],
+        "colpo_attuale": 1
+    },
+    {
+        "id": "BARI_ROMA_pos5",
+        "ruota_principale": "BARI",
+        "ruota_secondaria": "ROMA",
+        "motivo": "Isotopia 5ª pos (N. 43/43)",
+        "ambata": 3,
+        "ambo": [
+            3,
+            33
+        ],
+        "quartina": [
+            3,
+            33,
+            78
+        ],
+        "colpo_attuale": 1
+    },
+    {
+        "id": "FIRENZE_ROMA_pos5",
+        "ruota_principale": "FIRENZE",
+        "ruota_secondaria": "ROMA",
+        "motivo": "Isotopia 5ª pos (N. 43/43)",
+        "ambata": 63,
+        "ambo": [
+            63,
+            3
+        ],
+        "quartina": [
+            63,
+            3,
+            8
+        ],
+        "colpo_attuale": 1
+    },
+    {
+        "id": "BARI_FIRENZE_pos3",
+        "ruota_principale": "BARI",
+        "ruota_secondaria": "FIRENZE",
+        "motivo": "Isotopia 3ª pos (N. 49/69)",
+        "ambata": 29,
+        "ambo": [
+            29,
+            69
+        ],
+        "quartina": [
+            29,
+            69,
+            1
+        ],
+        "colpo_attuale": 1
+    },
+    {
+        "id": "BARI_GENOVA_pos2",
+        "ruota_principale": "BARI",
+        "ruota_secondaria": "GENOVA",
+        "motivo": "Isotopia 2ª pos (N. 77/47)",
+        "ambata": 47,
+        "ambo": [
+            47,
+            37
+        ],
+        "quartina": [
+            47,
+            37,
+            1
+        ],
+        "colpo_attuale": 1
+    },
+    {
+        "id": "BARI_MILANO_pos4",
+        "ruota_principale": "BARI",
+        "ruota_secondaria": "MILANO",
+        "motivo": "Isotopia 4ª pos (N. 65/85)",
+        "ambata": 25,
+        "ambo": [
+            25,
+            35
+        ],
+        "quartina": [
+            25,
+            35,
+            1
+        ],
+        "colpo_attuale": 1
+    }
+]
