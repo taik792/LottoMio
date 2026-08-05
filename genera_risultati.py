@@ -10,13 +10,17 @@ def carica_json(filepath):
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             return json.load(f)
-    except Exception:
+    except Exception as e:
+        print(f"⚠️ Errore durante la lettura di {filepath}: {e}")
         return None
 
 
 def salva_json(filepath, data):
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    try:
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"❌ Errore durante il salvataggio di {filepath}: {e}")
 
 
 def trova_condizioni_isotope(dati):
@@ -27,7 +31,7 @@ def trova_condizioni_isotope(dati):
         if lista_est:
             ultime_estrazioni[ruota.upper().strip()] = lista_est[-1]
 
-    ruote = list(ultime_estrazioni.keys())
+    ruote = sorted(list(ultime_estrazioni.keys()))
 
     for i in range(len(ruote)):
         for j in range(i + 1, len(ruote)):
@@ -52,6 +56,7 @@ def trova_condizioni_isotope(dati):
                         }
                     )
 
+    # Ordina le condizioni trovate per rilevanza
     condizioni.sort(key=lambda x: x["forza"], reverse=True)
     return condizioni
 
@@ -82,8 +87,11 @@ def calcola_pronostico(r1, r2, dati, cond):
         if n % 10 != cadenza_target
     )
 
+    # ID UNICO FISSO: Impedisce al programma di azzerare i colpi ad ogni run
+    id_unico = f"{r1}_{r2}_pos{cond['posizione']}"
+
     return {
-        "id": f"{r1}_{r2}_pos{cond['posizione']}_cad{cadenza_target}",
+        "id": id_unico,
         "ruota_principale": r1,
         "ruota_secondaria": r2,
         "motivo": f"Isotopia {cond['posizione']}ª pos (N. {cond['num1']}/{cond['num2']})",
@@ -101,55 +109,53 @@ def main():
 
     dati = carica_json(file_estrazioni)
     if not dati:
+        print("❌ File estrazioni.json mancante o vuoto.")
         return
 
-    # Normalizza ruote
+    # Normalizza i nomi delle ruote
     dati_clean = {k.upper().strip(): v for k, v in dati.items()}
 
-    # Carica le previsioni salvate in precedenza
-    previsioni_attive = carica_json(file_archivio) or []
+    # 1. Carica l'archivio esistente
+    previsioni_esistenti = carica_json(file_archivio) or []
 
-    # 1. Incrementa il conteggio dei colpi per le previsioni già in corso
+    # 2. Fai avanzare di 1 colpo le previsioni già in corso
     previsioni_aggiornate = []
-    for prev in previsioni_attive:
+    id_attivi = set()
+
+    for prev in previsioni_esistenti:
         prev["colpo_attuale"] += 1
+        # Mantieni in corsa solo quelle che non hanno superato il limite di colpi
         if prev["colpo_attuale"] <= MAX_COLPI:
             previsioni_aggiornate.append(prev)
+            id_attivi.add(prev["id"])
 
-    # 2. Calcola le nuove condizioni dall'ultima estrazione
+    # 3. Cerca nuove condizioni nell'ultima estrazione
     condizioni = trova_condizioni_isotope(dati_clean)
-    coppie_usate = {
-        tuple(sorted([p["ruota_principale"], p["ruota_secondaria"]]))
-        for p in previsioni_aggiornate
-    }
 
     for cond in condizioni:
         r1, r2 = cond["ruota1"], cond["ruota2"]
-        coppia_key = tuple(sorted([r1, r2]))
+        id_temp = f"{r1}_{r2}_pos{cond['posizione']}"
 
-        if coppia_key not in coppie_usate:
+        # Aggiungi la nuova previsione solo se la coppia su quella posizione non è già in corsa
+        if id_temp not in id_attivi:
             nuova_prev = calcola_pronostico(r1, r2, dati_clean, cond)
             previsioni_aggiornate.append(nuova_prev)
-            coppie_usate.add(coppia_key)
+            id_attivi.add(id_temp)
 
-        if len(previsioni_aggiornate) >= 5:  # Limite max previsioni a schermo
+        if len(previsioni_aggiornate) >= 6:  # Limite max schede a schermo
             break
 
-    # Salva il nuovo archivio
+    # 4. Salva l'archivio per la prossima esecuzione
     salva_json(file_archivio, previsioni_aggiornate)
 
-    # Prepara il file JSON per l'index.html
-    salva_json(
-        file_uscita,
-        {
-            "tipo_analisi": "Isotopie con inseguimento a 6 colpi",
-            "previsioni_top": previsioni_aggiornate,
-        },
-    )
+    # 5. Genera l'output per l'interfaccia Web
+    output_web = {
+        "tipo_analisi": "Isotopie e Cadenze Gemelle (Inseguimento 6 colpi)",
+        "previsioni_top": previsioni_aggiornate,
+    }
+    salva_json(file_uscita, output_web)
 
-    print(
-        f"✅ Elaborazione completata! Previsioni attive: {len(previsioni_aggiornate)}"
-    )
+    print(f"✅ Successo! Previsioni attive elaborate: {len(previsioni_aggiornate)}")
 
 
 if __name__ == "__main__":
