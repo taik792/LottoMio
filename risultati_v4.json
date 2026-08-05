@@ -16,7 +16,7 @@
                 63,
                 1
             ],
-            "colpo_attuale": 2
+            "colpo_attuale": 3
         },
         {
             "id": "BARI_ROMA_pos5",
@@ -33,7 +33,7 @@
                 33,
                 78
             ],
-            "colpo_attuale": 2
+            "colpo_attuale": 3
         },
         {
             "id": "FIRENZE_ROMA_pos5",
@@ -50,7 +50,7 @@
                 3,
                 8
             ],
-            "colpo_attuale": 2
+            "colpo_attuale": 3
         },
         {
             "id": "BARI_FIRENZE_pos3",
@@ -67,7 +67,7 @@
                 69,
                 1
             ],
-            "colpo_attuale": 2
+            "colpo_attuale": 3
         },
         {
             "id": "BARI_GENOVA_pos2",
@@ -84,7 +84,7 @@
                 37,
                 1
             ],
-            "colpo_attuale": 2
+            "colpo_attuale": 3
         },
         {
             "id": "BARI_MILANO_pos4",
@@ -101,7 +101,7 @@
                 35,
                 1
             ],
-            "colpo_attuale": 2
+            "colpo_attuale": 3
         }
     ]
 }
