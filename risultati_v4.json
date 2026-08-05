@@ -1,8 +1,8 @@
 {
-    "tipo_analisi": "Isotopie con inseguimento a 6 colpi",
+    "tipo_analisi": "Isotopie e Cadenze Gemelle (Inseguimento 6 colpi)",
     "previsioni_top": [
         {
-            "id": "BARI_FIRENZE_pos5_cad3",
+            "id": "BARI_FIRENZE_pos5",
             "ruota_principale": "BARI",
             "ruota_secondaria": "FIRENZE",
             "motivo": "Isotopia 5ª pos (N. 43/43)",
@@ -19,7 +19,7 @@
             "colpo_attuale": 1
         },
         {
-            "id": "BARI_ROMA_pos5_cad3",
+            "id": "BARI_ROMA_pos5",
             "ruota_principale": "BARI",
             "ruota_secondaria": "ROMA",
             "motivo": "Isotopia 5ª pos (N. 43/43)",
@@ -36,7 +36,7 @@
             "colpo_attuale": 1
         },
         {
-            "id": "FIRENZE_ROMA_pos5_cad3",
+            "id": "FIRENZE_ROMA_pos5",
             "ruota_principale": "FIRENZE",
             "ruota_secondaria": "ROMA",
             "motivo": "Isotopia 5ª pos (N. 43/43)",
@@ -53,7 +53,24 @@
             "colpo_attuale": 1
         },
         {
-            "id": "BARI_GENOVA_pos2_cad7",
+            "id": "BARI_FIRENZE_pos3",
+            "ruota_principale": "BARI",
+            "ruota_secondaria": "FIRENZE",
+            "motivo": "Isotopia 3ª pos (N. 49/69)",
+            "ambata": 29,
+            "ambo": [
+                29,
+                69
+            ],
+            "quartina": [
+                29,
+                69,
+                1
+            ],
+            "colpo_attuale": 1
+        },
+        {
+            "id": "BARI_GENOVA_pos2",
             "ruota_principale": "BARI",
             "ruota_secondaria": "GENOVA",
             "motivo": "Isotopia 2ª pos (N. 77/47)",
@@ -70,7 +87,7 @@
             "colpo_attuale": 1
         },
         {
-            "id": "BARI_MILANO_pos4_cad5",
+            "id": "BARI_MILANO_pos4",
             "ruota_principale": "BARI",
             "ruota_secondaria": "MILANO",
             "motivo": "Isotopia 4ª pos (N. 65/85)",
