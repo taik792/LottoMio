@@ -1,162 +1,126 @@
 import json
 import os
+from datetime import datetime
 
-MAX_COLPI = 6
+def fuori_90(numero):
+    while numero > 90: numero -= 90
+    while numero <= 0: numero += 90
+    return numero
 
+def calcola_diametrale(numero):
+    if numero <= 45: return numero + 45
+    return numero - 45
 
-def carica_json(filepath):
-    if not os.path.exists(filepath):
-        return None
-    try:
-        with open(filepath, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"⚠️ Errore durante la lettura di {filepath}: {e}")
-        return None
+def elabora_motore_sommativo():
+    if not os.path.exists('estrazioni.json'): return
 
+    FISSO_OTTIMIZZATO = 25 
 
-def salva_json(filepath, data):
-    try:
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-    except Exception as e:
-        print(f"❌ Errore durante il salvataggio di {filepath}: {e}")
+    with open('estrazioni.json', 'r', encoding='utf-8') as f:
+        archivio = json.load(f)
 
+    # Standardizzazione delle ruote in maiuscolo
+    archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
 
-def trova_condizioni_isotope(dati):
-    condizioni = []
-    ultime_estrazioni = {}
+    # Controllo presenza della ruota base Cagliari
+    if "CAGLIARI" not in archivio_pulito or len(archivio_pulito["CAGLIARI"]) == 0: return
+    
+    lista_cagliari = archivio_pulito["CAGLIARI"]
+    lista_palermo = archivio_pulito.get("PALERMO", [])
+    tot_estrazioni = len(lista_cagliari)
 
-    for ruota, lista_est in dati.items():
-        if lista_est:
-            ultime_estrazioni[ruota.upper().strip()] = lista_est[-1]
+    # Identifica la data dell'ultimo concorso inserito
+    data_reale = datetime.now().strftime("%d/%m/%Y")
+    if "info_concorso" in archivio and "data" in archivio["info_concorso"]:
+        data_reale = archivio["info_concorso"]["data"]
+    elif "data" in archivio:
+        data_reale = archivio["data"]
 
-    ruote = sorted(list(ultime_estrazioni.keys()))
-
-    for i in range(len(ruote)):
-        for j in range(i + 1, len(ruote)):
-            r1, r2 = ruote[i], ruote[j]
-            est1, est2 = ultime_estrazioni[r1], ultime_estrazioni[r2]
-
-            for pos in range(5):
-                n1, n2 = est1[pos], est2[pos]
-                cad1, cad2 = n1 % 10, n2 % 10
-
-                if n1 == n2 or cad1 == cad2:
-                    punti_forza = 2 if n1 == n2 else 1
-                    condizioni.append(
-                        {
-                            "ruota1": r1,
-                            "ruota2": r2,
-                            "posizione": pos + 1,
-                            "num1": n1,
-                            "num2": n2,
-                            "cadenza": cad1,
-                            "forza": punti_forza,
-                        }
-                    )
-
-    # Ordina le condizioni trovate per rilevanza
-    condizioni.sort(key=lambda x: x["forza"], reverse=True)
-    return condizioni
-
-
-def calcola_pronostico(r1, r2, dati, cond):
-    est1 = dati.get(r1, [])
-    est2 = dati.get(r2, [])
-
-    freq_combinata = {n: 0 for n in range(1, 91)}
-    for est in est1[-20:] + est2[-20:]:
-        for num in est:
-            freq_combinata[num] += 1
-
-    cadenza_target = cond["cadenza"]
-    numeri_cadenza = [n for n in range(1, 91) if n % 10 == cadenza_target]
-    numeri_cadenza_ordinati = sorted(
-        numeri_cadenza, key=lambda n: freq_combinata[n], reverse=True
-    )
-
-    ambata = numeri_cadenza_ordinati[0]
-    abbinamento1 = numeri_cadenza_ordinati[1]
-
-    altro_frequente = next(
-        n
-        for n, f in sorted(
-            freq_combinata.items(), key=lambda x: x[1], reverse=True
-        )
-        if n % 10 != cadenza_target
-    )
-
-    # ID UNICO FISSO: Impedisce al programma di azzerare i colpi ad ogni run
-    id_unico = f"{r1}_{r2}_pos{cond['posizione']}"
-
-    return {
-        "id": id_unico,
-        "ruota_principale": r1,
-        "ruota_secondaria": r2,
-        "motivo": f"Isotopia {cond['posizione']}ª pos (N. {cond['num1']}/{cond['num2']})",
-        "ambata": ambata,
-        "ambo": [ambata, abbinamento1],
-        "quartina": [ambata, abbinamento1, altro_frequente],
-        "colpo_attuale": 1,
+    risultati_finali = {
+        "info_concorso": {"numero": "Lotto Intelligence V8", "data": data_reale},
+        "previsioni": {},
+        "storico_verificato": []
     }
 
+    # 1. Elaborazione della PREVISIONE CORRENTE (Ultima estrazione) da 1° CAGLIARI
+    ultima_estrazione_cagliari = lista_cagliari[-1]
+    if isinstance(ultima_estrazione_cagliari, list) and len(ultima_estrazione_cagliari) >= 1:
+        try:
+            primo_cagliari = int(ultima_estrazione_cagliari[0])
+            ambata = fuori_90(primo_cagliari + FISSO_OTTIMIZZATO)
+            abbinamento = calcola_diametrale(ambata)
+            ambo_secco = [ambata, abbinamento]
+            ambetti = [
+                [ambata, fuori_90(abbinamento + 1)],
+                [ambata, fuori_90(abbinamento - 1)]
+            ]
+            
+            for ruota_chiave in ["CAGLIARI", "PALERMO"]:
+                if ruota_chiave in archivio_pulito and len(archivio_pulito[ruota_chiave]) > 0:
+                    risultati_finali["previsioni"][ruota_chiave] = {
+                        "numeri_estrazione": [int(n) for n in archivio_pulito[ruota_chiave][-1][:5]],
+                        "tipo_calcolo": f"Sommativo da 1° Cagliari ({primo_cagliari}) +{FISSO_OTTIMIZZATO}",
+                        "ambata": ambata,
+                        "ambo": ambo_secco,
+                        "ambetti": ambetti
+                    }
+        except (ValueError, IndexError):
+            pass
 
-def main():
-    file_estrazioni = "estrazioni.json"
-    file_archivio = "archivio_previsioni.json"
-    file_uscita = "risultati_v4.json"
+    # 2. RICOSTRUZIONE AUTOMATICA DELLO STORICO (Verifica su Cagliari e Palermo)
+    limite_storico = max(0, tot_estrazioni - 11)
+    
+    for i in range(tot_estrazioni - 2, limite_storico - 1, -1):
+        if i < 0: break
+        
+        estrazione_ca = lista_cagliari[i]
+        if not isinstance(estrazione_ca, list) or len(estrazione_ca) < 1: continue
+        
+        try:
+            p_cagliari = int(estrazione_ca[0])
+            ambata_p = fuori_90(p_cagliari + FISSO_OTTIMIZZATO)
+            abbinamento_p = calcola_diametrale(ambata_p)
+            ambo_p = [ambata_p, abbinamento_p]
+            
+            colpi_passati = (tot_estrazioni - 1) - i
+            
+            esito = "In gioco"
+            colpo_vincita = None
+            
+            # Scansione dei colpi successivi su Cagliari e Palermo
+            for c in range(1, colpi_passati + 1):
+                curr_idx = i + c
+                if curr_idx >= tot_estrazioni: break
+                
+                ca_nums = [int(n) for n in lista_cagliari[curr_idx][:5]]
+                pa_nums = [int(n) for n in lista_palermo[curr_idx][:5]] if curr_idx < len(lista_palermo) else []
+                
+                if (ambata_p in ca_nums and abbinamento_p in ca_nums) or (ambata_p in pa_nums and abbinamento_p in pa_nums):
+                    esito = "AMBO SECCO VINCENTE!"
+                    colpo_vincita = c
+                    break
+                elif (ambata_p in ca_nums) or (ambata_p in pa_nums):
+                    if esito == "In gioco":
+                        esito = "Ambata Vincente"
+                        colpo_vincita = c
+            
+            if esito == "In gioco" and colpi_passati > 9:
+                esito = "Ciclo concluso (No esito)"
+            
+            data_label = f"Concorso Arretrat. -{colpi_passati}"
+            
+            risultati_finali["storico_verificato"].append({
+                "data": data_label,
+                "ambata": ambata_p,
+                "ambo": f"{ambata_p} - {abbinamento_p}",
+                "colpi": f"{colpi_passati}° Colpo" if esito == "In gioco" else f"Esito al {colpo_vincita}° colpo" if colpo_vincita else "Chiuso",
+                "stato": esito
+            })
+        except (ValueError, IndexError):
+            pass
 
-    dati = carica_json(file_estrazioni)
-    if not dati:
-        print("❌ File estrazioni.json mancante o vuoto.")
-        return
-
-    # Normalizza i nomi delle ruote
-    dati_clean = {k.upper().strip(): v for k, v in dati.items()}
-
-    # 1. Carica l'archivio esistente
-    previsioni_esistenti = carica_json(file_archivio) or []
-
-    # 2. Fai avanzare di 1 colpo le previsioni già in corso
-    previsioni_aggiornate = []
-    id_attivi = set()
-
-    for prev in previsioni_esistenti:
-        prev["colpo_attuale"] += 1
-        # Mantieni in corsa solo quelle che non hanno superato il limite di colpi
-        if prev["colpo_attuale"] <= MAX_COLPI:
-            previsioni_aggiornate.append(prev)
-            id_attivi.add(prev["id"])
-
-    # 3. Cerca nuove condizioni nell'ultima estrazione
-    condizioni = trova_condizioni_isotope(dati_clean)
-
-    for cond in condizioni:
-        r1, r2 = cond["ruota1"], cond["ruota2"]
-        id_temp = f"{r1}_{r2}_pos{cond['posizione']}"
-
-        # Aggiungi la nuova previsione solo se la coppia su quella posizione non è già in corsa
-        if id_temp not in id_attivi:
-            nuova_prev = calcola_pronostico(r1, r2, dati_clean, cond)
-            previsioni_aggiornate.append(nuova_prev)
-            id_attivi.add(id_temp)
-
-        if len(previsioni_aggiornate) >= 6:  # Limite max schede a schermo
-            break
-
-    # 4. Salva l'archivio per la prossima esecuzione
-    salva_json(file_archivio, previsioni_aggiornate)
-
-    # 5. Genera l'output per l'interfaccia Web
-    output_web = {
-        "tipo_analisi": "Isotopie e Cadenze Gemelle (Inseguimento 6 colpi)",
-        "previsioni_top": previsioni_aggiornate,
-    }
-    salva_json(file_uscita, output_web)
-
-    print(f"✅ Successo! Previsioni attive elaborate: {len(previsioni_aggiornate)}")
-
+    with open('risultati_v4.json', 'w', encoding='utf-8') as f:
+        json.dump(risultati_finali, f, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
-    main()
+    elabora_motore_sommativo()
