@@ -1,124 +1,130 @@
 {
-    "tipo_analisi": "Isotopie e Cadenze Gemelle (Inseguimento 6 colpi)",
-    "previsioni_top": [
-        {
-            "id": "BARI_FIRENZE_pos5",
-            "ruota_principale": "BARI",
-            "ruota_secondaria": "FIRENZE",
-            "motivo": "Isotopia 5ª pos (N. 43/43)",
-            "ambata": 43,
-            "ambo": [
-                43,
-                63
+    "info_concorso": {
+        "numero": "Lotto Intelligence V8",
+        "data": "07/08/2026"
+    },
+    "previsioni": {
+        "CAGLIARI": {
+            "numeri_estrazione": [
+                53,
+                16,
+                74,
+                65,
+                70
             ],
-            "quartina": [
-                43,
-                63,
-                1
-            ],
-            "colpo_attuale": 4
-        },
-        {
-            "id": "BARI_ROMA_pos5",
-            "ruota_principale": "BARI",
-            "ruota_secondaria": "ROMA",
-            "motivo": "Isotopia 5ª pos (N. 43/43)",
-            "ambata": 3,
+            "tipo_calcolo": "Sommativo da 1° Cagliari (53) +25",
+            "ambata": 78,
             "ambo": [
-                3,
+                78,
                 33
             ],
-            "quartina": [
-                3,
-                33,
-                78
-            ],
-            "colpo_attuale": 4
+            "ambetti": [
+                [
+                    78,
+                    34
+                ],
+                [
+                    78,
+                    32
+                ]
+            ]
         },
-        {
-            "id": "FIRENZE_ROMA_pos5",
-            "ruota_principale": "FIRENZE",
-            "ruota_secondaria": "ROMA",
-            "motivo": "Isotopia 5ª pos (N. 43/43)",
-            "ambata": 63,
-            "ambo": [
-                63,
-                3
-            ],
-            "quartina": [
-                63,
-                3,
-                8
-            ],
-            "colpo_attuale": 4
-        },
-        {
-            "id": "BARI_FIRENZE_pos3",
-            "ruota_principale": "BARI",
-            "ruota_secondaria": "FIRENZE",
-            "motivo": "Isotopia 3ª pos (N. 49/69)",
-            "ambata": 29,
-            "ambo": [
-                29,
-                69
-            ],
-            "quartina": [
-                29,
+        "PALERMO": {
+            "numeri_estrazione": [
+                61,
                 69,
-                1
+                9,
+                8,
+                50
             ],
-            "colpo_attuale": 4
-        },
-        {
-            "id": "BARI_GENOVA_pos2",
-            "ruota_principale": "BARI",
-            "ruota_secondaria": "GENOVA",
-            "motivo": "Isotopia 2ª pos (N. 77/47)",
-            "ambata": 47,
+            "tipo_calcolo": "Sommativo da 1° Cagliari (53) +25",
+            "ambata": 78,
             "ambo": [
-                47,
-                37
+                78,
+                33
             ],
-            "quartina": [
-                47,
-                37,
-                1
-            ],
-            "colpo_attuale": 4
+            "ambetti": [
+                [
+                    78,
+                    34
+                ],
+                [
+                    78,
+                    32
+                ]
+            ]
+        }
+    },
+    "storico_verificato": [
+        {
+            "data": "Concorso Arretrat. -1",
+            "ambata": 10,
+            "ambo": "10 - 55",
+            "colpi": "1° Colpo",
+            "stato": "In gioco"
         },
         {
-            "id": "BARI_MILANO_pos4",
-            "ruota_principale": "BARI",
-            "ruota_secondaria": "MILANO",
-            "motivo": "Isotopia 4ª pos (N. 65/85)",
-            "ambata": 25,
-            "ambo": [
-                25,
-                35
-            ],
-            "quartina": [
-                25,
-                35,
-                1
-            ],
-            "colpo_attuale": 4
+            "data": "Concorso Arretrat. -2",
+            "ambata": 12,
+            "ambo": "12 - 57",
+            "colpi": "2° Colpo",
+            "stato": "In gioco"
         },
         {
-            "id": "BARI_MILANO_pos1",
-            "ruota_principale": "BARI",
-            "ruota_secondaria": "MILANO",
-            "motivo": "Isotopia 1ª pos (N. 22/22)",
+            "data": "Concorso Arretrat. -3",
+            "ambata": 76,
+            "ambo": "76 - 31",
+            "colpi": "3° Colpo",
+            "stato": "In gioco"
+        },
+        {
+            "data": "Concorso Arretrat. -4",
             "ambata": 22,
-            "ambo": [
-                22,
-                42
-            ],
-            "quartina": [
-                22,
-                42,
-                1
-            ],
-            "colpo_attuale": 2
+            "ambo": "22 - 67",
+            "colpi": "4° Colpo",
+            "stato": "In gioco"
+        },
+        {
+            "data": "Concorso Arretrat. -5",
+            "ambata": 48,
+            "ambo": "48 - 3",
+            "colpi": "5° Colpo",
+            "stato": "In gioco"
+        },
+        {
+            "data": "Concorso Arretrat. -6",
+            "ambata": 39,
+            "ambo": "39 - 84",
+            "colpi": "6° Colpo",
+            "stato": "In gioco"
+        },
+        {
+            "data": "Concorso Arretrat. -7",
+            "ambata": 32,
+            "ambo": "32 - 77",
+            "colpi": "Esito al 5° colpo",
+            "stato": "Ambata Vincente"
+        },
+        {
+            "data": "Concorso Arretrat. -8",
+            "ambata": 83,
+            "ambo": "83 - 38",
+            "colpi": "8° Colpo",
+            "stato": "In gioco"
+        },
+        {
+            "data": "Concorso Arretrat. -9",
+            "ambata": 4,
+            "ambo": "4 - 49",
+            "colpi": "Esito al 7° colpo",
+            "stato": "Ambata Vincente"
+        },
+        {
+            "data": "Concorso Arretrat. -10",
+            "ambata": 72,
+            "ambo": "72 - 27",
+            "colpi": "Esito al 3° colpo",
+            "stato": "Ambata Vincente"
         }
     ]
 }
