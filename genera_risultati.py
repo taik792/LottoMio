@@ -8,7 +8,9 @@ def fuori_90(numero):
     return numero
 
 def elabora_motore_sommativo():
-    if not os.path.exists('estrazioni.json'): return
+    if not os.path.exists('estrazioni.json'):
+        print("Errore: estrazioni.json non trovato.")
+        return
 
     # Fissi ottimizzati dal Backtest
     FISSO_AMBATA = 23
@@ -19,7 +21,9 @@ def elabora_motore_sommativo():
 
     archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
 
-    if "CAGLIARI" not in archivio_pulito or len(archivio_pulito["CAGLIARI"]) == 0: return
+    if "CAGLIARI" not in archivio_pulito or len(archivio_pulito["CAGLIARI"]) == 0:
+        print("Errore: Dati Cagliari mancanti.")
+        return
     
     lista_cagliari = archivio_pulito["CAGLIARI"]
     lista_palermo = archivio_pulito.get("PALERMO", [])
@@ -37,7 +41,7 @@ def elabora_motore_sommativo():
         "storico_verificato": []
     }
 
-    # 1. PREVISIONE CORRENTE
+    # 1. CALCOLO PREVISIONE CORRENTE
     ultima_estrazione_cagliari = lista_cagliari[-1]
     if isinstance(ultima_estrazione_cagliari, list) and len(ultima_estrazione_cagliari) >= 1:
         try:
@@ -59,10 +63,10 @@ def elabora_motore_sommativo():
                         "ambo": ambo_secco,
                         "ambetti": ambetti
                     }
-        except (ValueError, IndexError):
-            pass
+        except (ValueError, IndexError) as e:
+            print(f"Errore calcolo previsione: {e}")
 
-    # 2. STORICO VERIFICATO
+    # 2. VERIFICA STORICO RETROSPOSTO
     limite_storico = max(0, tot_estrazioni - 11)
     
     for i in range(tot_estrazioni - 2, limite_storico - 1, -1):
@@ -114,6 +118,7 @@ def elabora_motore_sommativo():
 
     with open('risultati_v4.json', 'w', encoding='utf-8') as f:
         json.dump(risultati_finali, f, indent=4, ensure_ascii=False)
+        print("File risultati_v4.json aggiornato con successo.")
 
 if __name__ == "__main__":
     elabora_motore_sommativo()
