@@ -1,36 +1,41 @@
-name: Lotto Bot V4
+name: Lotto Intelligence - Pipeline & Backtest
 
 on:
-  schedule:
-    - cron: "*/30 * * * *" # Ogni 30 minuti
-  workflow_dispatch: # Permette l'avvio manuale
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Permette l'avvio manuale dalla scheda Actions
 
 jobs:
-  build:
+  run-lotto-engine:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Necessario per fare il push dell'archivio aggiornato
+
     steps:
-      - name: Clona repository
-        uses: actions/checkout@v3
+      - name: Checkout del Repository
+        uses: actions/checkout@v4
 
-      - name: Installa Python
-        uses: actions/setup-python@v4
+      - name: Configurazione Ambiente Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: Installa dipendenze
+      # 1. Esegue il backtest per calcolare le combinazioni migliori
+      - name: Esecuzione Backtest Fissi
+        run: python backtest.py
+
+      # 2. Esegue lo script principale per aggiornare le previsioni
+      - name: Generazione Risultati JSON
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f "main.py" ]; then
+            python main.py
+          elif [ -f "script.py" ]; then
+            python script.py
+          fi
 
-      - name: Esegui algoritmo
-        run: python genera_risultati.py
-
-      - name: Commit risultati e archivio colpi
+      # 3. Salva i file aggiornati nel repository
+      - name: Commit e Push dei File Generati
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add risultati_v4.json archivio_previsioni.json
-          git commit -m "Auto-update risultati V4 e archivio colpi [skip ci]" || echo "Nessuna modifica da salvare"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "Auto-update: Backtest ed Elaborazione Previsioni" || exit 0
           git push
