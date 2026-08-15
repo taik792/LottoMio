@@ -7,29 +7,24 @@ def fuori_90(numero):
     while numero <= 0: numero += 90
     return numero
 
-def calcola_diametrale(numero):
-    if numero <= 45: return numero + 45
-    return numero - 45
-
 def elabora_motore_sommativo():
     if not os.path.exists('estrazioni.json'): return
 
-    FISSO_OTTIMIZZATO = 25 
+    # Fissi ottimizzati dal Backtest
+    FISSO_AMBATA = 23
+    FISSO_ABBINAMENTO = 87
 
     with open('estrazioni.json', 'r', encoding='utf-8') as f:
         archivio = json.load(f)
 
-    # Standardizzazione delle ruote in maiuscolo
     archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
 
-    # Controllo presenza della ruota base Cagliari
     if "CAGLIARI" not in archivio_pulito or len(archivio_pulito["CAGLIARI"]) == 0: return
     
     lista_cagliari = archivio_pulito["CAGLIARI"]
     lista_palermo = archivio_pulito.get("PALERMO", [])
     tot_estrazioni = len(lista_cagliari)
 
-    # Identifica la data dell'ultimo concorso inserito
     data_reale = datetime.now().strftime("%d/%m/%Y")
     if "info_concorso" in archivio and "data" in archivio["info_concorso"]:
         data_reale = archivio["info_concorso"]["data"]
@@ -37,18 +32,18 @@ def elabora_motore_sommativo():
         data_reale = archivio["data"]
 
     risultati_finali = {
-        "info_concorso": {"numero": "Lotto Intelligence V8", "data": data_reale},
+        "info_concorso": {"numero": "Lotto Intelligence V8.1", "data": data_reale},
         "previsioni": {},
         "storico_verificato": []
     }
 
-    # 1. Elaborazione della PREVISIONE CORRENTE (Ultima estrazione) da 1° CAGLIARI
+    # 1. PREVISIONE CORRENTE
     ultima_estrazione_cagliari = lista_cagliari[-1]
     if isinstance(ultima_estrazione_cagliari, list) and len(ultima_estrazione_cagliari) >= 1:
         try:
             primo_cagliari = int(ultima_estrazione_cagliari[0])
-            ambata = fuori_90(primo_cagliari + FISSO_OTTIMIZZATO)
-            abbinamento = calcola_diametrale(ambata)
+            ambata = fuori_90(primo_cagliari + FISSO_AMBATA)
+            abbinamento = fuori_90(primo_cagliari + FISSO_ABBINAMENTO)
             ambo_secco = [ambata, abbinamento]
             ambetti = [
                 [ambata, fuori_90(abbinamento + 1)],
@@ -59,7 +54,7 @@ def elabora_motore_sommativo():
                 if ruota_chiave in archivio_pulito and len(archivio_pulito[ruota_chiave]) > 0:
                     risultati_finali["previsioni"][ruota_chiave] = {
                         "numeri_estrazione": [int(n) for n in archivio_pulito[ruota_chiave][-1][:5]],
-                        "tipo_calcolo": f"Sommativo da 1° Cagliari ({primo_cagliari}) +{FISSO_OTTIMIZZATO}",
+                        "tipo_calcolo": f"Sommativo: 1° CA ({primo_cagliari}) +{FISSO_AMBATA} / +{FISSO_ABBINAMENTO}",
                         "ambata": ambata,
                         "ambo": ambo_secco,
                         "ambetti": ambetti
@@ -67,7 +62,7 @@ def elabora_motore_sommativo():
         except (ValueError, IndexError):
             pass
 
-    # 2. RICOSTRUZIONE AUTOMATICA DELLO STORICO (Verifica su Cagliari e Palermo)
+    # 2. STORICO VERIFICATO
     limite_storico = max(0, tot_estrazioni - 11)
     
     for i in range(tot_estrazioni - 2, limite_storico - 1, -1):
@@ -78,16 +73,14 @@ def elabora_motore_sommativo():
         
         try:
             p_cagliari = int(estrazione_ca[0])
-            ambata_p = fuori_90(p_cagliari + FISSO_OTTIMIZZATO)
-            abbinamento_p = calcola_diametrale(ambata_p)
-            ambo_p = [ambata_p, abbinamento_p]
+            ambata_p = fuori_90(p_cagliari + FISSO_AMBATA)
+            abbinamento_p = fuori_90(p_cagliari + FISSO_ABBINAMENTO)
             
             colpi_passati = (tot_estrazioni - 1) - i
             
             esito = "In gioco"
             colpo_vincita = None
             
-            # Scansione dei colpi successivi su Cagliari e Palermo
             for c in range(1, colpi_passati + 1):
                 curr_idx = i + c
                 if curr_idx >= tot_estrazioni: break
@@ -104,7 +97,7 @@ def elabora_motore_sommativo():
                         esito = "Ambata Vincente"
                         colpo_vincita = c
             
-            if esito == "In gioco" and colpi_passati > 9:
+            if esito == "In gioco" and colpi_passati > 6:
                 esito = "Ciclo concluso (No esito)"
             
             data_label = f"Concorso Arretrat. -{colpi_passati}"
