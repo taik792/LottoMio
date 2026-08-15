@@ -3,7 +3,9 @@ name: Lotto Intelligence - Pipeline & Backtest
 on:
   push:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Permette l'avvio manuale dalla scheda Actions
+  schedule:
+    - cron: '30 20 * * 2,4,5,6'
+  workflow_dispatch:
 
 jobs:
   run-lotto-engine:
@@ -18,24 +20,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 1. Esegue il backtest per calcolare le combinazioni migliori
+      # 1. Esegue il backtest
       - name: Esecuzione Backtest Fissi
         run: python backtest.py
 
-      # 2. Esegue lo script principale per aggiornare le previsioni
+      # 2. Esegue lo script principale di calcolo
       - name: Generazione Risultati JSON
-        run: |
-          if [ -f "main.py" ]; then
-            python main.py
-          elif [ -f "script.py" ]; then
-            python script.py
-          fi
+        run: python genera_risultati.py
 
-      # 3. Salva i file aggiornati nel repository
+      # 3. Salva e pubblica i file aggiornati
       - name: Commit e Push dei File Generati
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
-          git commit -m "Auto-update: Backtest ed Elaborazione Previsioni" || exit 0
+          git commit -m "Auto-update: Previsioni e Backtest v8.1" || exit 0
           git push
