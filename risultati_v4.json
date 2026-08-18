@@ -1,56 +1,56 @@
 {
     "info_concorso": {
         "numero": "Lotto Intelligence V8.1",
-        "data": "15/08/2026"
+        "data": "18/08/2026"
     },
     "previsioni": {
         "CAGLIARI": {
             "numeri_estrazione": [
-                86,
-                69,
-                70,
-                8,
-                71
+                44,
+                79,
+                25,
+                21,
+                66
             ],
-            "tipo_calcolo": "Sommativo: 1° CA (86) +23 / +87",
-            "ambata": 19,
+            "tipo_calcolo": "Sommativo: 1° CA (44) +23 / +87",
+            "ambata": 67,
             "ambo": [
-                19,
-                83
+                67,
+                41
             ],
             "ambetti": [
                 [
-                    19,
-                    84
+                    67,
+                    42
                 ],
                 [
-                    19,
-                    82
+                    67,
+                    40
                 ]
             ]
         },
         "PALERMO": {
             "numeri_estrazione": [
-                33,
-                72,
-                89,
-                14,
-                80
+                66,
+                12,
+                49,
+                53,
+                7
             ],
-            "tipo_calcolo": "Sommativo: 1° CA (86) +23 / +87",
-            "ambata": 19,
+            "tipo_calcolo": "Sommativo: 1° CA (44) +23 / +87",
+            "ambata": 67,
             "ambo": [
-                19,
-                83
+                67,
+                41
             ],
             "ambetti": [
                 [
-                    19,
-                    84
+                    67,
+                    42
                 ],
                 [
-                    19,
-                    82
+                    67,
+                    40
                 ]
             ]
         }
@@ -58,73 +58,73 @@
     "storico_verificato": [
         {
             "data": "Concorso Arretrat. -1",
+            "ambata": 19,
+            "ambo": "19 - 83",
+            "colpi": "1° Colpo",
+            "stato": "In gioco"
+        },
+        {
+            "data": "Concorso Arretrat. -2",
             "ambata": 70,
             "ambo": "70 - 44",
             "colpi": "Esito al 1° colpo",
             "stato": "Ambata Vincente"
         },
         {
-            "data": "Concorso Arretrat. -2",
+            "data": "Concorso Arretrat. -3",
             "ambata": 68,
             "ambo": "68 - 42",
-            "colpi": "2° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -3",
-            "ambata": 21,
-            "ambo": "21 - 85",
             "colpi": "3° Colpo",
             "stato": "In gioco"
         },
         {
             "data": "Concorso Arretrat. -4",
+            "ambata": 21,
+            "ambo": "21 - 85",
+            "colpi": "Esito al 4° colpo",
+            "stato": "Ambata Vincente"
+        },
+        {
+            "data": "Concorso Arretrat. -5",
             "ambata": 24,
             "ambo": "24 - 88",
             "colpi": "Esito al 3° colpo",
             "stato": "AMBO SECCO VINCENTE!"
         },
         {
-            "data": "Concorso Arretrat. -5",
+            "data": "Concorso Arretrat. -6",
             "ambata": 76,
             "ambo": "76 - 50",
-            "colpi": "5° Colpo",
+            "colpi": "6° Colpo",
             "stato": "In gioco"
         },
         {
-            "data": "Concorso Arretrat. -6",
+            "data": "Concorso Arretrat. -7",
             "ambata": 8,
             "ambo": "8 - 72",
             "colpi": "Esito al 1° colpo",
             "stato": "Ambata Vincente"
         },
         {
-            "data": "Concorso Arretrat. -7",
+            "data": "Concorso Arretrat. -8",
             "ambata": 10,
             "ambo": "10 - 74",
             "colpi": "Chiuso",
             "stato": "Ciclo concluso (No esito)"
         },
         {
-            "data": "Concorso Arretrat. -8",
+            "data": "Concorso Arretrat. -9",
             "ambata": 74,
             "ambo": "74 - 48",
             "colpi": "Esito al 3° colpo",
             "stato": "Ambata Vincente"
         },
         {
-            "data": "Concorso Arretrat. -9",
+            "data": "Concorso Arretrat. -10",
             "ambata": 20,
             "ambo": "20 - 84",
             "colpi": "Chiuso",
             "stato": "Ciclo concluso (No esito)"
-        },
-        {
-            "data": "Concorso Arretrat. -10",
-            "ambata": 46,
-            "ambo": "46 - 20",
-            "colpi": "Esito al 1° colpo",
-            "stato": "Ambata Vincente"
         }
     ]
 }
