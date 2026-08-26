@@ -1,0 +1,12 @@
+{
+    "estrazione_inizio": 3933,
+    "setup": {
+        "ruota_spia": "GENOVA",
+        "ruota_1": "NAPOLI",
+        "ruota_2": "PALERMO",
+        "fisso_ambata": 51,
+        "fisso_abbinamento": 40,
+        "ambi": 8
+    },
+    "chiusa": false
+}
