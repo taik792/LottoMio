@@ -1,103 +1,88 @@
 import json
 import os
 
-def fuori_90(numero):
-    while numero > 90: numero -= 90
-    while numero <= 0: numero += 90
-    return numero
+RUOTE = ["BARI", "CAGLIARI", "FIRENZE", "GENOVA", "MILANO", "NAPOLI", "PALERMO", "ROMA", "TORINO", "VENEZIA"]
 
-def esegui_backtest(limite_estrazioni=50, max_colpi=6):
+def fuori_90(n):
+    while n > 90: n -= 90
+    while n <= 0: n += 90
+    return n
+
+def super_backtest(limite_estrazioni=50, max_colpi=6):
     if not os.path.exists('estrazioni.json'):
-        print("Errore: File estrazioni.json non trovato.")
+        print("Errore: estrazioni.json non trovato.")
         return
 
     with open('estrazioni.json', 'r', encoding='utf-8') as f:
         archivio = json.load(f)
 
     archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
-
-    if "CAGLIARI" not in archivio_pulito or "PALERMO" not in archivio_pulito:
-        print("Errore: Ruote di Cagliari o Palermo non presenti nell'archivio.")
-        return
-
-    ca = archivio_pulito["CAGLIARI"]
-    pa = archivio_pulito["PALERMO"]
-    tot_estrazioni = len(ca)
-
+    
+    tot_estrazioni = len(archivio_pulito.get("BARI", []))
     if tot_estrazioni < limite_estrazioni + max_colpi:
         limite_estrazioni = tot_estrazioni - max_colpi
 
     start_idx = tot_estrazioni - max_colpi - limite_estrazioni
     end_idx = tot_estrazioni - max_colpi
 
-    print(f"--- AVVIO BACKTEST SU CAGLIARI-PALERMO ---")
-    print(f"Concorsi analizzati: {limite_estrazioni} | Finestra di gioco: {max_colpi} colpi\n")
+    miglior_score = -1
+    miglior_setup = None
 
-    classifica_fissi = {}
+    print("--- AVVIO SUPER-BACKTEST MULTI-RUOTA ---")
 
-    # Scansione di tutte le coppie di fissi possibili (Fisso Ambata, Fisso Abbinamento)
-    for fisso_ambata in range(1, 91):
-        for fisso_abbinamento in range(1, 91):
-            if fisso_ambata == fisso_abbinamento: continue
+    # Scansione su tutte le ruote spia
+    for r_spia in RUOTE:
+        if r_spia not in archivio_pulito: continue
+        dati_spia = archivio_pulito[r_spia]
 
-            ambi_vinti = 0
-            ambate_vinte = 0
-            casi_totali = 0
-
-            for i in range(start_idx, end_idx):
-                if not isinstance(ca[i], list) or len(ca[i]) < 1: continue
+        # Scansione coppie di ruote di gioco
+        for i_r1 in range(len(RUOTE)):
+            for i_r2 in range(i_r1 + 1, len(RUOTE)):
+                r1, r2 = RUOTE[i_r1], RUOTE[i_r2]
+                if r1 not in archivio_pulito or r2 not in archivio_pulito: continue
                 
-                try:
-                    primo_ca = int(ca[i][0])
-                    num_ambata = fuori_90(primo_ca + fisso_ambata)
-                    num_abbinamento = fuori_90(primo_ca + fisso_abbinamento)
-                    casi_totali += 1
+                dati_r1 = archivio_pulito[r1]
+                dati_r2 = archivio_pulito[r2]
 
-                    ambo_hit = False
-                    ambata_hit = False
+                # Test campionario dei fissi a passi di 3 per velocizzare l'esecuzione su GitHub
+                for f_amb in range(1, 91, 2):
+                    for f_abb in range(1, 91, 3):
+                        if f_amb == f_abb: continue
 
-                    # Verifica nei colpi successivi
-                    for colpo in range(1, max_colpi + 1):
-                        idx_check = i + colpo
-                        ca_nums = [int(n) for n in ca[idx_check][:5]]
-                        pa_nums = [int(n) for n in pa[idx_check][:5]]
+                        ambi_vinti = 0
+                        for i in range(start_idx, end_idx):
+                            try:
+                                primo_spia = int(dati_spia[i][0])
+                                n_amb = fuori_90(primo_spia + f_amb)
+                                n_abb = fuori_90(primo_spia + f_abb)
 
-                        # Controllo Ambo Secco
-                        if (num_ambata in ca_nums and num_abbinamento in ca_nums) or \
-                           (num_ambata in pa_nums and num_abbinamento in pa_nums):
-                            ambo_hit = True
-                            break
-                        
-                        # Controllo Ambata
-                        if (num_ambata in ca_nums) or (num_ambata in pa_nums):
-                            ambata_hit = True
+                                for colpo in range(1, max_colpi + 1):
+                                    idx_c = i + colpo
+                                    nums_r1 = [int(x) for x in dati_r1[idx_c][:5]]
+                                    nums_r2 = [int(x) for x in dati_r2[idx_c][:5]]
 
-                    if ambo_hit:
-                        ambi_vinti += 1
-                    elif ambata_hit:
-                        ambate_vinte += 1
+                                    if (n_amb in nums_r1 and n_abb in nums_r1) or (n_amb in nums_r2 and n_abb in nums_r2):
+                                        ambi_vinti += 1
+                                        break
+                            except (ValueError, IndexError):
+                                continue
 
-                except (ValueError, IndexError):
-                    continue
+                        if ambi_vinti > miglior_score:
+                            miglior_score = ambi_vinti
+                            miglior_setup = {
+                                "ruota_spia": r_spia,
+                                "ruota_1": r1,
+                                "ruota_2": r2,
+                                "fisso_ambata": f_amb,
+                                "fisso_abbinamento": f_abb,
+                                "ambi": ambi_vinti
+                            }
 
-            if casi_totali > 0:
-                percentuale_ambi = (ambi_vinti / casi_totali) * 100
-                classifica_fissi[(fisso_ambata, fisso_abbinamento)] = {
-                    "ambi": ambi_vinti,
-                    "ambate": ambate_vinte,
-                    "totale": casi_totali,
-                    "perc_ambo": percentuale_ambi
-                }
-
-    # Ordinamento per maggior numero di Ambi Vinti
-    top_risultati = sorted(classifica_fissi.items(), key=lambda x: (x[1]['ambi'], x[1]['ambate']), reverse=True)[:5]
-
-    print("=== TOP 5 COPPIE DI FISSI PER AMBO SECCO ===")
-    for rank, (coppia, stats) in enumerate(top_risultati, 1):
-        f_amb, f_abb = coppia
-        print(f"{rank}°) Formula: 1° CA +{f_amb} (Ambata) e 1° CA +{f_abb} (Abbinamento)")
-        print(f"    -> Ambi Secchi Vinti: {stats['ambi']} su {stats['totale']} concorsi ({stats['perc_ambo']:.1f}%)")
-        print(f"    -> Solo Ambata: {stats['ambate']} concorsi\n")
+    print("\n=== MIGLIOR SETUP ABSOLUTO TROVATO ===")
+    print(f"Ruota Spia: 1° di {miglior_setup['ruota_spia']}")
+    print(f"Ruote di Gioco: {miglior_setup['ruota_1']} e {miglior_setup['ruota_2']}")
+    print(f"Formula: Spia +{miglior_setup['fisso_ambata']} (Ambata) e Spia +{miglior_setup['fisso_abbinamento']} (Abbinamento)")
+    print(f"Ambi vinti negli ultimi concorsi: {miglior_setup['ambi']}")
 
 if __name__ == "__main__":
-    esegui_backtest(limite_estrazioni=60, max_colpi=6)
+    super_backtest()
