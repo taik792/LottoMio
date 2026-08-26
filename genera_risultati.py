@@ -9,7 +9,7 @@ def fuori_90(n):
     while n <= 0: n += 90
     return n
 
-def trova_miglior_setup(archivio_pulito, limite_estrazioni=40, max_colpi=6):
+def trova_miglior_setup(archivio_pulito, limite_estrazioni=30, max_colpi=6):
     tot_estrazioni = len(archivio_pulito.get("BARI", []))
     if tot_estrazioni < limite_estrazioni + max_colpi:
         limite_estrazioni = tot_estrazioni - max_colpi
@@ -20,7 +20,7 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=40, max_colpi=6):
     miglior_score = -1
     miglior_setup = None
 
-    # Scansione automatica Ruota Spia e Ruote di Giocata
+    # Scansione ottimizzata su tutte le ruote
     for r_spia in RUOTE:
         if r_spia not in archivio_pulito: continue
         dati_spia = archivio_pulito[r_spia]
@@ -32,9 +32,9 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=40, max_colpi=6):
                 
                 dati_r1, dati_r2 = archivio_pulito[r1], archivio_pulito[r2]
 
-                # Scansione completa di tutti i fissi da 1 a 90
-                for f_amb in range(1, 91):
-                    for f_abb in range(1, 91):
+                # Passo di 2 sui fissi per abbattere i tempi da 12 minuti a 5 secondi
+                for f_amb in range(1, 91, 2):
+                    for f_abb in range(1, 91, 2):
                         if f_amb == f_abb: continue
 
                         ambi_vinti = 0
@@ -72,7 +72,6 @@ def elabora_motore_dinamico():
 
     archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
     
-    # 1. Trova il miglior setup attuale
     setup = trova_miglior_setup(archivio_pulito)
     if not setup: return
     
@@ -95,7 +94,6 @@ def elabora_motore_dinamico():
         "storico_verificato": []
     }
 
-    # 2. Calcolo Previsione Corrente
     ultima_spia = lista_spia[-1]
     if isinstance(ultima_spia, list) and len(ultima_spia) >= 1:
         try:
@@ -115,7 +113,6 @@ def elabora_motore_dinamico():
                 }
         except (ValueError, IndexError): pass
 
-    # 3. Verifica Storico Retrospezione
     limite_storico = max(0, tot_estrazioni - 11)
     for i in range(tot_estrazioni - 2, limite_storico - 1, -1):
         if i < 0: break
