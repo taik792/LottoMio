@@ -19,8 +19,8 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=40, max_colpi=6):
 
     miglior_score = -1
     miglior_setup = {
-        "ruota_spia": "CAGLIARI", "ruota_1": "CAGLIARI", "ruota_2": "PALERMO",
-        "fisso_ambata": 23, "fisso_abbinamento": 87
+        "ruota_spia": "BARI", "ruota_1": "CAGLIARI", "ruota_2": "VENEZIA",
+        "fisso_ambata": 7, "fisso_abbinamento": 19
     }
 
     # Scansione automatica Ruota Spia e Ruote di Gioco
@@ -96,7 +96,7 @@ def elabora_motore_dinamico():
         "storico_verificato": []
     }
 
-    # 2. Calcolo Previsione Corrente
+    # 2. Calcolo Previsione Corrente con FIX per l'estrazione visiva
     ultima_spia = lista_spia[-1]
     if isinstance(ultima_spia, list) and len(ultima_spia) >= 1:
         try:
