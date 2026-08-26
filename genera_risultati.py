@@ -20,7 +20,6 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=25, max_colpi=6):
     miglior_score = -1
     miglior_setup = None
 
-    # Scansione su tutte le ruote
     for r_spia in RUOTE:
         if r_spia not in archivio_pulito: continue
         dati_spia = archivio_pulito[r_spia]
@@ -32,8 +31,6 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=25, max_colpi=6):
                 
                 dati_r1, dati_r2 = archivio_pulito[r1], archivio_pulito[r2]
 
-                # Scansione di TUTTI i fissi per f_abb (passo 1) e f_amb (passo 2)
-                # Questo evita che abbiano sempre la differenza di +2!
                 for f_amb in range(1, 91, 2):
                     for f_abb in range(1, 91, 1):
                         if f_amb == f_abb: continue
@@ -72,18 +69,39 @@ def elabora_motore_dinamico():
         archivio = json.load(f)
 
     archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
+    tot_estrazioni = len(archivio_pulito.get("BARI", []))
+
+    # Controllo se c'è una giocata attiva salvata nel file della memoria
+    setup_attivo = None
+    if os.path.exists('giocata_attiva.json'):
+        try:
+            with open('giocata_attiva.json', 'r', encoding='utf-8') as f:
+                dati_attivi = json.load(f)
+                estrazione_inizio = dati_attivi.get("estrazione_inizio", 0)
+                colpi_trascorsi = tot_estrazioni - estrazione_inizio
+                
+                # Se la giocata ha meno di 6 colpi ed è valida, la manteniamo attiva!
+                if 0 <= colpi_trascorsi <= 6 and not dati_attivi.get("chiusa", False):
+                    setup_attivo = dati_attivi.get("setup")
+        except Exception:
+            setup_attivo = None
+
+    # Se non c'è una giocata attiva (o la precedente si è chiusa), calcola un nuovo setup ottimale
+    if not setup_attivo:
+        setup_attivo = trova_miglior_setup(archivio_pulito)
+        if setup_attivo:
+            with open('giocata_attiva.json', 'w', encoding='utf-8') as f:
+                json.dump({"estrazione_inizio": tot_estrazioni - 1, "setup": setup_attivo, "chiusa": False}, f, indent=4)
+
+    if not setup_attivo: return
     
-    setup = trova_miglior_setup(archivio_pulito)
-    if not setup: return
-    
-    r_spia = setup["ruota_spia"]
-    r1, r2 = setup["ruota_1"], setup["ruota_2"]
-    f_amb, f_abb = setup["fisso_ambata"], setup["fisso_abbinamento"]
+    r_spia = setup_attivo["ruota_spia"]
+    r1, r2 = setup_attivo["ruota_1"], setup_attivo["ruota_2"]
+    f_amb, f_abb = setup_attivo["fisso_ambata"], setup_attivo["fisso_abbinamento"]
     
     lista_spia = archivio_pulito[r_spia]
     lista_r1 = archivio_pulito[r1]
     lista_r2 = archivio_pulito[r2]
-    tot_estrazioni = len(lista_spia)
 
     data_reale = datetime.now().strftime("%d/%m/%Y")
     if "info_concorso" in archivio and "data" in archivio["info_concorso"]:
@@ -95,6 +113,7 @@ def elabora_motore_dinamico():
         "storico_verificato": []
     }
 
+    # 2. Previsione Corrente
     ultima_spia = lista_spia[-1]
     if isinstance(ultima_spia, list) and len(ultima_spia) >= 1:
         try:
@@ -114,6 +133,7 @@ def elabora_motore_dinamico():
                 }
         except (ValueError, IndexError): pass
 
+    # 3. Verifica Storico Retrospezione
     limite_storico = max(0, tot_estrazioni - 11)
     for i in range(tot_estrazioni - 2, limite_storico - 1, -1):
         if i < 0: break
@@ -144,6 +164,14 @@ def elabora_motore_dinamico():
             
             if esito == "In gioco" and colpi_passati > 6: esito = "Ciclo concluso (No esito)"
             
+            # Se la giocata attiva ha vinto o ha finito i 6 colpi, segna come da resettare al prossimo giro
+            if i == tot_estrazioni - 2 and (esito != "In gioco" or colpi_passati >= 6):
+                if os.path.exists('giocata_attiva.json'):
+                    try:
+                        with open('giocata_attiva.json', 'w', encoding='utf-8') as f:
+                            json.dump({"estrazione_inizio": 0, "setup": None, "chiusa": True}, f)
+                    except Exception: pass
+
             risultati_finali["storico_verificato"].append({
                 "data": f"Concorso Arretrat. -{colpi_passati}",
                 "ambata": amb_p,
