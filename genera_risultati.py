@@ -2,84 +2,128 @@ import json
 import os
 from datetime import datetime
 
-def fuori_90(numero):
-    while numero > 90: numero -= 90
-    while numero <= 0: numero += 90
-    return numero
+RUOTE = ["BARI", "CAGLIARI", "FIRENZE", "GENOVA", "MILANO", "NAPOLI", "PALERMO", "ROMA", "TORINO", "VENEZIA"]
 
-def elabora_motore_sommativo():
-    if not os.path.exists('estrazioni.json'):
-        print("Errore: estrazioni.json non trovato.")
-        return
+def fuori_90(n):
+    while n > 90: n -= 90
+    while n <= 0: n += 90
+    return n
 
-    # Fissi ottimizzati dal Backtest
-    FISSO_AMBATA = 23
-    FISSO_ABBINAMENTO = 87
+def trova_miglior_setup(archivio_pulito, limite_estrazioni=40, max_colpi=6):
+    tot_estrazioni = len(archivio_pulito.get("BARI", []))
+    if tot_estrazioni < limite_estrazioni + max_colpi:
+        limite_estrazioni = tot_estrazioni - max_colpi
+
+    start_idx = tot_estrazioni - max_colpi - limite_estrazioni
+    end_idx = tot_estrazioni - max_colpi
+
+    miglior_score = -1
+    miglior_setup = {
+        "ruota_spia": "CAGLIARI", "ruota_1": "CAGLIARI", "ruota_2": "PALERMO",
+        "fisso_ambata": 23, "fisso_abbinamento": 87
+    }
+
+    # Scansione automatica Ruota Spia e Ruote di Gioco
+    for r_spia in RUOTE:
+        if r_spia not in archivio_pulito: continue
+        dati_spia = archivio_pulito[r_spia]
+
+        for i_r1 in range(len(RUOTE)):
+            for i_r2 in range(i_r1 + 1, len(RUOTE)):
+                r1, r2 = RUOTE[i_r1], RUOTE[i_r2]
+                if r1 not in archivio_pulito or r2 not in archivio_pulito: continue
+                
+                dati_r1, dati_r2 = archivio_pulito[r1], archivio_pulito[r2]
+
+                for f_amb in range(1, 91, 2):
+                    for f_abb in range(1, 91, 3):
+                        if f_amb == f_abb: continue
+
+                        ambi_vinti = 0
+                        for i in range(start_idx, end_idx):
+                            try:
+                                primo_spia = int(dati_spia[i][0])
+                                n_amb = fuori_90(primo_spia + f_amb)
+                                n_abb = fuori_90(primo_spia + f_abb)
+
+                                for colpo in range(1, max_colpi + 1):
+                                    idx_c = i + colpo
+                                    nums_r1 = [int(x) for x in dati_r1[idx_c][:5]]
+                                    nums_r2 = [int(x) for x in dati_r2[idx_c][:5]]
+
+                                    if (n_amb in nums_r1 and n_abb in nums_r1) or (n_amb in nums_r2 and n_abb in nums_r2):
+                                        ambi_vinti += 1
+                                        break
+                            except (ValueError, IndexError):
+                                continue
+
+                        if ambi_vinti > miglior_score:
+                            miglior_score = ambi_vinti
+                            miglior_setup = {
+                                "ruota_spia": r_spia, "ruota_1": r1, "ruota_2": r2,
+                                "fisso_ambata": f_amb, "fisso_abbinamento": f_abb,
+                                "ambi": ambi_vinti
+                            }
+    return miglior_setup
+
+def elabora_motore_dinamico():
+    if not os.path.exists('estrazioni.json'): return
 
     with open('estrazioni.json', 'r', encoding='utf-8') as f:
         archivio = json.load(f)
 
     archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
-
-    if "CAGLIARI" not in archivio_pulito or len(archivio_pulito["CAGLIARI"]) == 0:
-        print("Errore: Dati Cagliari mancanti.")
-        return
     
-    lista_cagliari = archivio_pulito["CAGLIARI"]
-    lista_palermo = archivio_pulito.get("PALERMO", [])
-    tot_estrazioni = len(lista_cagliari)
+    # 1. Trova il miglior setup attuale su tutte le ruote
+    setup = trova_miglior_setup(archivio_pulito)
+    
+    r_spia = setup["ruota_spia"]
+    r1, r2 = setup["ruota_1"], setup["ruota_2"]
+    f_amb, f_abb = setup["fisso_ambata"], setup["fisso_abbinamento"]
+    
+    lista_spia = archivio_pulito[r_spia]
+    lista_r1 = archivio_pulito[r1]
+    lista_r2 = archivio_pulito[r2]
+    tot_estrazioni = len(lista_spia)
 
     data_reale = datetime.now().strftime("%d/%m/%Y")
     if "info_concorso" in archivio and "data" in archivio["info_concorso"]:
         data_reale = archivio["info_concorso"]["data"]
-    elif "data" in archivio:
-        data_reale = archivio["data"]
 
     risultati_finali = {
-        "info_concorso": {"numero": "Lotto Intelligence V8.1", "data": data_reale},
+        "info_concorso": {"numero": "Lotto Intelligence V9.0 (Dinamico)", "data": data_reale},
         "previsioni": {},
         "storico_verificato": []
     }
 
-    # 1. CALCOLO PREVISIONE CORRENTE
-    ultima_estrazione_cagliari = lista_cagliari[-1]
-    if isinstance(ultima_estrazione_cagliari, list) and len(ultima_estrazione_cagliari) >= 1:
+    # 2. Calcolo Previsione Corrente
+    ultima_spia = lista_spia[-1]
+    if isinstance(ultima_spia, list) and len(ultima_spia) >= 1:
         try:
-            primo_cagliari = int(ultima_estrazione_cagliari[0])
-            ambata = fuori_90(primo_cagliari + FISSO_AMBATA)
-            abbinamento = fuori_90(primo_cagliari + FISSO_ABBINAMENTO)
+            primo_spia = int(ultima_spia[0])
+            ambata = fuori_90(primo_spia + f_amb)
+            abbinamento = fuori_90(primo_spia + f_abb)
             ambo_secco = [ambata, abbinamento]
-            ambetti = [
-                [ambata, fuori_90(abbinamento + 1)],
-                [ambata, fuori_90(abbinamento - 1)]
-            ]
+            ambetti = [[ambata, fuori_90(abbinamento + 1)], [ambata, fuori_90(abbinamento - 1)]]
             
-            for ruota_chiave in ["CAGLIARI", "PALERMO"]:
-                if ruota_chiave in archivio_pulito and len(archivio_pulito[ruota_chiave]) > 0:
-                    risultati_finali["previsioni"][ruota_chiave] = {
-                        "numeri_estrazione": [int(n) for n in archivio_pulito[ruota_chiave][-1][:5]],
-                        "tipo_calcolo": f"Sommativo: 1° CA ({primo_cagliari}) +{FISSO_AMBATA} / +{FISSO_ABBINAMENTO}",
-                        "ambata": ambata,
-                        "ambo": ambo_secco,
-                        "ambetti": ambetti
-                    }
-        except (ValueError, IndexError) as e:
-            print(f"Errore calcolo previsione: {e}")
+            for r_target in [r1, r2]:
+                risultati_finali["previsioni"][r_target] = {
+                    "numeri_estrazione": [int(n) for n in archivio_pulito[r_target][-1][:5]],
+                    "tipo_calcolo": f"Dinamico: 1° {r_spia} ({primo_spia}) +{f_amb} / +{f_abb}",
+                    "ambata": ambata,
+                    "ambo": ambo_secco,
+                    "ambetti": ambetti
+                }
+        except (ValueError, IndexError): pass
 
-    # 2. VERIFICA STORICO RETROSPOSTO
+    # 3. Verifica Storico Retrospezione
     limite_storico = max(0, tot_estrazioni - 11)
-    
     for i in range(tot_estrazioni - 2, limite_storico - 1, -1):
         if i < 0: break
-        
-        estrazione_ca = lista_cagliari[i]
-        if not isinstance(estrazione_ca, list) or len(estrazione_ca) < 1: continue
-        
         try:
-            p_cagliari = int(estrazione_ca[0])
-            ambata_p = fuori_90(p_cagliari + FISSO_AMBATA)
-            abbinamento_p = fuori_90(p_cagliari + FISSO_ABBINAMENTO)
-            
+            p_spia = int(lista_spia[i][0])
+            amb_p = fuori_90(p_spia + f_amb)
+            abb_p = fuori_90(p_spia + f_abb)
             colpi_passati = (tot_estrazioni - 1) - i
             
             esito = "In gioco"
@@ -89,36 +133,31 @@ def elabora_motore_sommativo():
                 curr_idx = i + c
                 if curr_idx >= tot_estrazioni: break
                 
-                ca_nums = [int(n) for n in lista_cagliari[curr_idx][:5]]
-                pa_nums = [int(n) for n in lista_palermo[curr_idx][:5]] if curr_idx < len(lista_palermo) else []
+                nums1 = [int(n) for n in lista_r1[curr_idx][:5]]
+                nums2 = [int(n) for n in lista_r2[curr_idx][:5]]
                 
-                if (ambata_p in ca_nums and abbinamento_p in ca_nums) or (ambata_p in pa_nums and abbinamento_p in pa_nums):
+                if (amb_p in nums1 and abb_p in nums1) or (amb_p in nums2 and abb_p in nums2):
                     esito = "AMBO SECCO VINCENTE!"
                     colpo_vincita = c
                     break
-                elif (ambata_p in ca_nums) or (ambata_p in pa_nums):
+                elif (amb_p in nums1) or (amb_p in nums2):
                     if esito == "In gioco":
                         esito = "Ambata Vincente"
                         colpo_vincita = c
             
-            if esito == "In gioco" and colpi_passati > 6:
-                esito = "Ciclo concluso (No esito)"
-            
-            data_label = f"Concorso Arretrat. -{colpi_passati}"
+            if esito == "In gioco" and colpi_passati > 6: esito = "Ciclo concluso (No esito)"
             
             risultati_finali["storico_verificato"].append({
-                "data": data_label,
-                "ambata": ambata_p,
-                "ambo": f"{ambata_p} - {abbinamento_p}",
+                "data": f"Concorso Arretrat. -{colpi_passati}",
+                "ambata": amb_p,
+                "ambo": f"{amb_p} - {abb_p}",
                 "colpi": f"{colpi_passati}° Colpo" if esito == "In gioco" else f"Esito al {colpo_vincita}° colpo" if colpo_vincita else "Chiuso",
                 "stato": esito
             })
-        except (ValueError, IndexError):
-            pass
+        except (ValueError, IndexError): pass
 
     with open('risultati_v4.json', 'w', encoding='utf-8') as f:
         json.dump(risultati_finali, f, indent=4, ensure_ascii=False)
-        print("File risultati_v4.json aggiornato con successo.")
 
 if __name__ == "__main__":
-    elabora_motore_sommativo()
+    elabora_motore_dinamico()
