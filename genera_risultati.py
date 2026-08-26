@@ -9,7 +9,7 @@ def fuori_90(n):
     while n <= 0: n += 90
     return n
 
-def trova_miglior_setup(archivio_pulito, limite_estrazioni=30, max_colpi=6):
+def trova_miglior_setup(archivio_pulito, limite_estrazioni=25, max_colpi=6):
     tot_estrazioni = len(archivio_pulito.get("BARI", []))
     if tot_estrazioni < limite_estrazioni + max_colpi:
         limite_estrazioni = tot_estrazioni - max_colpi
@@ -20,7 +20,7 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=30, max_colpi=6):
     miglior_score = -1
     miglior_setup = None
 
-    # Scansione ottimizzata su tutte le ruote
+    # Scansione su tutte le ruote
     for r_spia in RUOTE:
         if r_spia not in archivio_pulito: continue
         dati_spia = archivio_pulito[r_spia]
@@ -32,9 +32,10 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=30, max_colpi=6):
                 
                 dati_r1, dati_r2 = archivio_pulito[r1], archivio_pulito[r2]
 
-                # Passo di 2 sui fissi per abbattere i tempi da 12 minuti a 5 secondi
+                # Scansione di TUTTI i fissi per f_abb (passo 1) e f_amb (passo 2)
+                # Questo evita che abbiano sempre la differenza di +2!
                 for f_amb in range(1, 91, 2):
-                    for f_abb in range(1, 91, 2):
+                    for f_abb in range(1, 91, 1):
                         if f_amb == f_abb: continue
 
                         ambi_vinti = 0
