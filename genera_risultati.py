@@ -18,12 +18,9 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=40, max_colpi=6):
     end_idx = tot_estrazioni - max_colpi
 
     miglior_score = -1
-    miglior_setup = {
-        "ruota_spia": "BARI", "ruota_1": "CAGLIARI", "ruota_2": "VENEZIA",
-        "fisso_ambata": 7, "fisso_abbinamento": 19
-    }
+    miglior_setup = None
 
-    # Scansione automatica Ruota Spia e Ruote di Gioco
+    # Scansione automatica Ruota Spia e Ruote di Giocata
     for r_spia in RUOTE:
         if r_spia not in archivio_pulito: continue
         dati_spia = archivio_pulito[r_spia]
@@ -35,8 +32,9 @@ def trova_miglior_setup(archivio_pulito, limite_estrazioni=40, max_colpi=6):
                 
                 dati_r1, dati_r2 = archivio_pulito[r1], archivio_pulito[r2]
 
-                for f_amb in range(1, 91, 2):
-                    for f_abb in range(1, 91, 3):
+                # Scansione completa di tutti i fissi da 1 a 90
+                for f_amb in range(1, 91):
+                    for f_abb in range(1, 91):
                         if f_amb == f_abb: continue
 
                         ambi_vinti = 0
@@ -74,8 +72,9 @@ def elabora_motore_dinamico():
 
     archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
     
-    # 1. Trova il miglior setup attuale su tutte le ruote
+    # 1. Trova il miglior setup attuale
     setup = trova_miglior_setup(archivio_pulito)
+    if not setup: return
     
     r_spia = setup["ruota_spia"]
     r1, r2 = setup["ruota_1"], setup["ruota_2"]
@@ -96,7 +95,7 @@ def elabora_motore_dinamico():
         "storico_verificato": []
     }
 
-    # 2. Calcolo Previsione Corrente con FIX per l'estrazione visiva
+    # 2. Calcolo Previsione Corrente
     ultima_spia = lista_spia[-1]
     if isinstance(ultima_spia, list) and len(ultima_spia) >= 1:
         try:
