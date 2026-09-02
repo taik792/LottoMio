@@ -1,12 +1,12 @@
 {
-    "estrazione_inizio": 7334,
+    "estrazione_inizio": 3937,
     "setup": {
         "ruota_spia": "BARI",
-        "ruota_1": "NAPOLI",
-        "ruota_2": "ROMA",
-        "fisso_ambata": 53,
-        "fisso_abbinamento": 73,
-        "ambi": 7
+        "ruota_1": "FIRENZE",
+        "ruota_2": "TORINO",
+        "fisso_ambata": 65,
+        "fisso_abbinamento": 38,
+        "ambi": 8
     },
     "chiusa": false
 }
