@@ -1,11 +1,11 @@
 {
-    "estrazione_inizio": 3937,
+    "estrazione_inizio": 7335,
     "setup": {
-        "ruota_spia": "BARI",
-        "ruota_1": "FIRENZE",
-        "ruota_2": "TORINO",
-        "fisso_ambata": 65,
-        "fisso_abbinamento": 38,
+        "ruota_spia": "FIRENZE",
+        "ruota_1": "TORINO",
+        "ruota_2": "VENEZIA",
+        "fisso_ambata": 31,
+        "fisso_abbinamento": 68,
         "ambi": 8
     },
     "chiusa": false

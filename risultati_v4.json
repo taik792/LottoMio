@@ -4,127 +4,71 @@
         "data": "04/09/2026"
     },
     "previsioni": {
-        "FIRENZE": {
+        "TORINO": {
             "numeri_estrazione": [
-                62,
-                26,
-                54,
-                5,
-                81
+                84,
+                12,
+                51,
+                23,
+                33
             ],
-            "tipo_calcolo": "Dinamico: 1° BARI (73) +65 / +38",
-            "ambata": 48,
+            "tipo_calcolo": "Dinamico: 1° FIRENZE (39) +31 / +68",
+            "ambata": 70,
             "ambo": [
-                48,
-                21
+                70,
+                17
             ],
             "ambetti": [
                 [
-                    48,
-                    22
+                    70,
+                    18
                 ],
                 [
-                    48,
-                    20
+                    70,
+                    16
                 ]
             ]
         },
-        "TORINO": {
+        "VENEZIA": {
             "numeri_estrazione": [
-                77,
-                40,
-                2,
-                74,
-                59
+                69,
+                62,
+                45,
+                70,
+                43
             ],
-            "tipo_calcolo": "Dinamico: 1° BARI (73) +65 / +38",
-            "ambata": 48,
+            "tipo_calcolo": "Dinamico: 1° FIRENZE (39) +31 / +68",
+            "ambata": 70,
             "ambo": [
-                48,
-                21
+                70,
+                17
             ],
             "ambetti": [
                 [
-                    48,
-                    22
+                    70,
+                    18
                 ],
                 [
-                    48,
-                    20
+                    70,
+                    16
                 ]
             ]
         }
     },
     "storico_verificato": [
         {
-            "data": "Concorso Arretrat. -1",
-            "ambata": 31,
-            "ambo": "31 - 4",
-            "colpi": "1° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -2",
-            "ambata": 40,
-            "ambo": "40 - 13",
-            "colpi": "Esito al 2° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
-            "data": "Concorso Arretrat. -3",
-            "ambata": 54,
-            "ambo": "54 - 27",
-            "colpi": "Esito al 3° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
-            "data": "Concorso Arretrat. -4",
-            "ambata": 4,
-            "ambo": "4 - 67",
-            "colpi": "Esito al 1° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
-            "data": "Concorso Arretrat. -5",
-            "ambata": 80,
-            "ambo": "80 - 53",
-            "colpi": "5° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -6",
-            "ambata": 36,
-            "ambo": "36 - 9",
-            "colpi": "6° Colpo",
-            "stato": "In gioco"
-        },
-        {
             "data": "Concorso Arretrat. -7",
-            "ambata": 56,
-            "ambo": "56 - 29",
-            "colpi": "Esito al 1° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
-            "data": "Concorso Arretrat. -8",
-            "ambata": 38,
-            "ambo": "38 - 11",
-            "colpi": "Esito al 4° colpo",
+            "ambata": 70,
+            "ambo": "70 - 17",
+            "colpi": "Esito al 2° colpo",
             "stato": "AMBO SECCO VINCENTE!"
         },
         {
-            "data": "Concorso Arretrat. -9",
-            "ambata": 34,
-            "ambo": "34 - 7",
-            "colpi": "Esito al 2° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
             "data": "Concorso Arretrat. -10",
-            "ambata": 85,
-            "ambo": "85 - 58",
-            "colpi": "Esito al 1° colpo",
-            "stato": "Ambata Vincente"
+            "ambata": 16,
+            "ambo": "16 - 53",
+            "colpi": "Esito al 3° colpo",
+            "stato": "AMBO SECCO VINCENTE!"
         }
     ]
 }
