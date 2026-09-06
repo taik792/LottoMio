@@ -1,0 +1,2 @@
+# lottomode
+Lotto Aimode
