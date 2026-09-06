@@ -14,7 +14,7 @@ def calcola_diametrale(numero):
 def elabora_motore_sommativo():
     if not os.path.exists('estrazioni.json'): return
 
-    FISSO_OTTIMIZZATO = 25 
+    FISSO_OTTIMIZZATO = 10 
 
     with open('estrazioni.json', 'r', encoding='utf-8') as f:
         archivio = json.load(f)
@@ -22,11 +22,11 @@ def elabora_motore_sommativo():
     # Standardizzazione delle ruote in maiuscolo
     archivio_pulito = {k.upper(): v for k, v in archivio.items() if isinstance(v, list)}
 
-    if "BARI" not in archivio_pulito or len(archivio_pulito["BARI"]) == 0: return
+    if "FIRENZE" not in archivio_pulito or len(archivio_pulito["FIRENZE"]) == 0: return
     
-    lista_bari = archivio_pulito["BARI"]
+    lista_firenze = archivio_pulito["FIRENZE"]
     lista_milano = archivio_pulito.get("MILANO", [])
-    tot_estrazioni = len(lista_bari)
+    tot_estrazioni = len(lista_firenze)
 
     # Identifica la data dell'ultimo concorso inserito
     data_reale = datetime.now().strftime("%d/%m/%Y")
@@ -42,11 +42,11 @@ def elabora_motore_sommativo():
     }
 
     # 1. Elaborazione della PREVISIONE CORRENTE (Ultima estrazione)
-    ultima_estrazione_bari = lista_bari[-1]
-    if isinstance(ultima_estrazione_bari, list) and len(ultima_estrazione_bari) >= 1:
+    ultima_estrazione_firenze = lista_firenze[-1]
+    if isinstance(ultima_estrazione_firenze, list) and len(ultima_estrazione_firenze) >= 1:
         try:
-            primo_bari = int(ultima_estrazione_bari[0])
-            ambata = fuori_90(primo_bari + FISSO_OTTIMIZZATO)
+            primo_firenze = int(ultima_estrazione_firenze[0])
+            ambata = fuori_90(primo_firenze + FISSO_OTTIMIZZATO)
             abbinamento = calcola_diametrale(ambata)
             ambo_secco = [ambata, abbinamento]
             ambetti = [
@@ -54,11 +54,11 @@ def elabora_motore_sommativo():
                 [ambata, fuori_90(abbinamento - 1)]
             ]
             
-            for ruota_chiave in ["BARI", "MILANO"]:
+            for ruota_chiave in ["FIRENZE", "MILANO"]:
                 if ruota_chiave in archivio_pulito and len(archivio_pulito[ruota_chiave]) > 0:
                     risultati_finali["previsioni"][ruota_chiave] = {
                         "numeri_estrazione": [int(n) for n in archivio_pulito[ruota_chiave][-1][:5]],
-                        "tipo_calcolo": f"Sommativo da 1° Bari ({primo_bari}) +{FISSO_OTTIMIZZATO}",
+                        "tipo_calcolo": f"Sommativo da 1° Firenze ({primo_firenze}) +{FISSO_OTTIMIZZATO}",
                         "ambata": ambata,
                         "ambo": ambo_secco,
                         "ambetti": ambetti
@@ -73,12 +73,12 @@ def elabora_motore_sommativo():
     for i in range(tot_estrazioni - 2, limite_storico - 1, -1):
         if i < 0: break
         
-        estrazione_b = lista_bari[i]
+        estrazione_b = lista_firenze[i]
         if not isinstance(estrazione_b, list) or len(estrazione_b) < 1: continue
         
         try:
-            p_bari = int(estrazione_b[0])
-            ambata_p = fuori_90(p_bari + FISSO_OTTIMIZZATO)
+            p_firenze = int(estrazione_b[0])
+            ambata_p = fuori_90(p_firenze + FISSO_OTTIMIZZATO)
             abbinamento_p = calcola_diametrale(ambata_p)
             ambo_p = [ambata_p, abbinamento_p]
             
@@ -93,7 +93,7 @@ def elabora_motore_sommativo():
                 curr_idx = i + c
                 if curr_idx >= tot_estrazioni: break
                 
-                ba_nums = [int(n) for n in lista_bari[curr_idx][:5]]
+                ba_nums = [int(n) for n in lista_firenze[curr_idx][:5]]
                 mi_nums = [int(n) for n in lista_milano[curr_idx][:5]] if curr_idx < len(lista_milano) else []
                 
                 if (ambata_p in ba_nums and abbinamento_p in ba_nums) or (ambata_p in mi_nums and abbinamento_p in mi_nums):
