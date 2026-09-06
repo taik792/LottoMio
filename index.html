@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotto Intelligence V8</title>
+    <title>Lotto Mode Coppie</title>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -63,7 +63,7 @@
 <body>
 <div class="container">
     <header>
-        <h1>Lotto Intelligence V8</h1>
+        <h1>Lotto Mode Coppie</h1>
         <p id="info-data" class="info-concorso">Algoritmo Sommativo Unificato</p>
     </header>
     
@@ -82,7 +82,6 @@
             
             document.getElementById('info-data').innerText = `Estrazione del: ${data.info_concorso.data || "N.D."}`;
             
-            // Render Previsione in Corso
             const container = document.getElementById('ruote-list');
             container.innerHTML = ''; 
             for (const [ruota, info] of Object.entries(data.previsioni)) {
@@ -107,7 +106,6 @@
                 container.appendChild(card);
             }
 
-            // Render Storico Verificato da Python
             const storicoContainer = document.getElementById('storico-list');
             storicoContainer.innerHTML = '';
             
@@ -127,7 +125,7 @@
 
                 minicard.innerHTML = `
                     <div class="card-header">
-                        <span class="ruota-title" style="color:#475569;">FIRENZE - MILANO (${item.data})</span>
+                        <span class="ruota-title" style="color:#475569;">${item.ruote || 'RUOTE'} (${item.data})</span>
                         <span class="spia-badge" style="background:${badgeBg}; color:${badgeTxt}; font-weight:bold;">${item.colpi}</span>
                     </div>
                     <div class="previsione-box">
