@@ -3,13 +3,48 @@
         "numero": "Lotto Intelligence V8",
         "data": "N/D"
     },
-    "previsioni": {},
+    "previsioni": {
+        "TORINO": {
+            "ambata": 41,
+            "ambo": [
+                41,
+                86
+            ],
+            "ambetti": [
+                [
+                    41,
+                    87
+                ],
+                [
+                    41,
+                    85
+                ]
+            ]
+        },
+        "NAPOLI": {
+            "ambata": 41,
+            "ambo": [
+                41,
+                86
+            ],
+            "ambetti": [
+                [
+                    41,
+                    87
+                ],
+                [
+                    41,
+                    85
+                ]
+            ]
+        }
+    },
     "storico_verificato": [
         {
-            "data": "Nessun dato",
+            "data": "Concorso Attuale",
             "ruote": "TORINO - NAPOLI",
-            "ambata": "-",
-            "ambo": "-",
+            "ambata": 41,
+            "ambo": "41 - 86",
             "colpi": "1° Colpo",
             "stato": "In gioco"
         }
