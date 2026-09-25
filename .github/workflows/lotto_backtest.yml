@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Esegui Lotto Intelligence V8
+    - name: Esegui Motore e Ottimizzatore V8
       run: |
         python genera_risultati.py
         python super_ottimizzatore.py
