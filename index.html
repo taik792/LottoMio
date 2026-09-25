@@ -100,18 +100,28 @@
             const response = await fetch('risultati_v4.json');
             const dati = await response.json();
             
-            // 1. Imposta info concorso e data
-            if(dati.info_concorso) {
-                document.getElementById('data-aggiornamento').innerText = `Estrazione del ${dati.info_concorso.data || ''}`;
-            }
+            console.log("Dati JSON ricevuti:", dati);
 
-            // 2. Estrazione dati della prima ruota disponibile (es. FIRENZE) per ricavare i numeri di gioco
+            // 1. RILEVAMENTO DINAMICO DELLE RUOTE REALI DAL JSON
             const chiaviRuote = Object.keys(dati.previsioni || {});
+            let rb = "TORINO";   // Valore di sicurezza
+            let rr = "NAPOLI";   // Valore di sicurezza
+            
+            if (chiaviRuote.length >= 2) {
+                rb = chiaviRuote[0]; // Prende la prima ruota (es. TORINO)
+                rr = chiaviRuote[1]; // Prende la seconda ruota (es. NAPOLI)
+            } else if (chiaviRuote.length === 1) {
+                rb = chiaviRuote[0];
+                rr = chiaviRuote[0];
+            }
+            
+            // Aggiorna il titolo visivo con le ruote effettive del file JSON
+            document.getElementById('titolo-ruote').innerText = `🔥 RUOTA BASE: ${rb} | RECUPERO: ${rr}`;
+            
+            // 2. ESTRATTO DATI NUMERICI DELLA PREVISIONE
             if(chiaviRuote.length > 0) {
-                const ruotaPrincipale = chiaviRuote[0]; // FIRENZE
-                const datiPrevisione = dati.previsioni[ruotaPrincipale];
+                const datiPrevisione = dati.previsioni[rb];
                 
-                // Imposta i valori di Ambata e Ambo leggendo l'array
                 const ambata = datiPrevisione.ambata;
                 const amboPrimo = datiPrevisione.ambo[0];
                 const amboSecondo = datiPrevisione.ambo[1];
@@ -119,7 +129,6 @@
                 document.getElementById('valore-ambata').innerText = ambata;
                 document.getElementById('valore-ambo').innerText = `${amboPrimo} - ${amboSecondo}`;
                 
-                // Formatta la visualizzazione degli Ambetti
                 if(datiPrevisione.ambetti && datiPrevisione.ambetti.length >= 2) {
                     const ambetto1 = datiPrevisione.ambetti[0].join('-');
                     const ambetto2 = datiPrevisione.ambetti[1].join('-');
@@ -127,8 +136,7 @@
                 }
             }
 
-            // 3. Rilevamento automatico del colpo corrente dallo storico per attivare la montante
-            // Guardiamo il primo elemento dello storico_verificato (il concorso più recente)
+            // 3. TRACCIAMENTO DEL COLPO DALLO STORICO
             let colpoNum = 0;
             let testoColpo = "Nessun colpo attivo";
             
@@ -136,14 +144,13 @@
                 const ultimoStorico = dati.storico_verificato[0];
                 testoColpo = `${ultimoStorico.colpi} (${ultimoStorico.stato})`;
                 
-                // Estraiamo il numero dal testo (es: "1° Colpo" -> 1, "4° Colpo" -> 4)
                 const match = ultimoStorico.colpi.match(/\d+/);
                 if(match && ultimoStorico.stato === "In gioco") {
                     colpoNum = parseInt(match[0], 10);
                 }
             }
 
-            // Gestione e accensione dei badge grafici
+            // Gestione dei badge grafici
             const statoBox = document.getElementById('stato-colpo');
             if (colpoNum === 1) {
                 statoBox.className = "badge badge-attesa";
@@ -151,7 +158,6 @@
             } else if (colpoNum >= 2 && colpoNum <= 5) {
                 statoBox.className = "badge badge-oro";
                 statoBox.innerHTML = `🔥 FASCIA D'ORO ATTIVA: Previsione al ${colpoNum}° Colpo. ATTACCA ORA!`;
-                // Evidenzia la riga corrispondente nella montante
                 const rigaAttiva = document.getElementById(`row-${colpoNum}`);
                 if(rigaAttiva) rigaAttiva.className = "consigliato";
             } else if (colpoNum >= 6 && colpoNum <= 9) {
@@ -162,15 +168,13 @@
                 statoBox.innerHTML = `🛑 STATO: ${testoColpo}`;
             }
 
-            // 4. Popolamento automatico della tabella dello storico
+            // 4. POPOLAMENTO TABELLA STORICO
             const corpoStorico = document.getElementById('corpo-storico');
-            corpoStorico.innerHTML = ""; // Svuota
+            corpoStorico.innerHTML = "";
             
             if(dati.storico_verificato) {
                 dati.storico_verificato.forEach(item => {
                     const tr = document.createElement('tr');
-                    
-                    // Colora lo stato in base all'esito
                     let classeStato = "in-gioco";
                     if(item.stato.includes("Vincente")) {
                         classeStato = "vinta";
