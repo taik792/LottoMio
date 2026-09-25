@@ -20,10 +20,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Esegui Test Storico V8
+    - name: Esegui Lotto Intelligence V8
       run: |
-        if [ -f genera_risultati.py ]; then
-          run: python super_ottimizzatore.py
+        python genera_risultati.py
+        python super_ottimizzatore.py
         else
           echo "Errore: Il file genera_risultati.py non esiste nella repository!"
           exit 1
