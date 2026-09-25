@@ -22,10 +22,10 @@ jobs:
 
     - name: Esegui Motore e Ottimizzatore V8
       run: |
-        python genera_risultati.py
-        python super_ottimizzatore.py
+        if [ -f genera_risultati.py ]; then
+          python genera_risultati.py
+          python super_ottimizzatore.py
         else
           echo "Errore: Il file genera_risultati.py non esiste nella repository!"
           exit 1
         fi
-
