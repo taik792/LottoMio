@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 # --- IMPOSTAZIONI REGINA ASSOLUTA V8 ---
 FISSO_OTTIMIZZATO = 10
@@ -24,34 +25,25 @@ def main():
     with open(FILE_ESTRAZIONI, "r", encoding="utf-8") as f:
         dati_archivio = json.load(f)
 
-    # Adattamento alla struttura reale del file JSON
+    # Lettura sicura delle chiavi del dizionario
     storico_verificato = dati_archivio.get("storico_verificato", [])
     info_concorso = dati_archivio.get("info_concorso", {
         "numero": "Lotto Intelligence V8",
         "data": "N/D"
     })
-    
-    if not storico_verificato:
-        print("Errore: la chiave 'storico_verificato' è vuota o mancante.")
-        return
-
-    # 1. Recupero della prima voce dello storico per determinare lo stato attuale
-    ultima_previsione_storico = storico_verificato[0]
-    stringa_colpi = ultima_previsione_storico.get("colpi", "1° Colpo")
-    stato_attuale = ultima_previsione_storico.get("stato", "In gioco")
-
-    # Estraiamo il numero del colpo (es. "1° Colpo" -> 1)
-    import re
-    match = re.search(r'\d+', stringa_colpi)
-    colpo_numerico = int(match.group()) if match else 1
-
-    # 2. Generazione della previsione attuale (Logica V8 applicata ai dati esistenti)
     previsioni_output = dati_archivio.get("previsioni", {})
     
-    # Se per qualche motivo la struttura 'previsioni' non è presente, la calcoliamo al volo
-    if not previsioni_output and "FIRENZE" in previsioni_output:
-        # Mantiene i dati presenti scritti dal tuo motore principale
-        pass
+    # Se lo storico è vuoto, creiamo un record fittizio di sicurezza per index.html
+    if not storico_verificato:
+        print("⚠️ Nota: 'storico_verificato' vuoto. Genero un record di backup.")
+        storico_verificato = [{
+            "data": "Nessun dato",
+            "ruote": f"{RUOTA_BASE} - {RUOTA_RECUPERO}",
+            "ambata": "-",
+            "ambo": "-",
+            "colpi": "1° Colpo",
+            "stato": "In gioco"
+        }]
 
     # Compila la struttura finale compatibile al 100% con index.html
     struttura_finale = {
@@ -64,7 +56,6 @@ def main():
         json.dump(struttura_finale, f, indent=4, ensure_ascii=False)
         
     print(f"✅ File {FILE_RISULTATI} generato con successo!")
-    print(f"📌 Rilevato dallo storico: {stringa_colpi} ({stato_attuale}) -> Passato a index.html")
 
 if __name__ == "__main__":
     main()
