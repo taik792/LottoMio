@@ -6,51 +6,51 @@
     "previsioni": {
         "FIRENZE": {
             "numeri_estrazione": [
-                47,
-                28,
-                25,
-                5,
-                82
+                75,
+                15,
+                49,
+                21,
+                13
             ],
-            "tipo_calcolo": "Sommativo da 1° Firenze (47) +10",
-            "ambata": 57,
+            "tipo_calcolo": "Sommativo da 1° Firenze (75) +10",
+            "ambata": 85,
             "ambo": [
-                57,
-                12
+                85,
+                40
             ],
             "ambetti": [
                 [
-                    57,
-                    13
+                    85,
+                    41
                 ],
                 [
-                    57,
-                    11
+                    85,
+                    39
                 ]
             ]
         },
         "MILANO": {
             "numeri_estrazione": [
-                8,
-                90,
-                15,
-                35,
-                67
+                78,
+                29,
+                86,
+                53,
+                52
             ],
-            "tipo_calcolo": "Sommativo da 1° Firenze (47) +10",
-            "ambata": 57,
+            "tipo_calcolo": "Sommativo da 1° Firenze (75) +10",
+            "ambata": 85,
             "ambo": [
-                57,
-                12
+                85,
+                40
             ],
             "ambetti": [
                 [
-                    57,
-                    13
+                    85,
+                    41
                 ],
                 [
-                    57,
-                    11
+                    85,
+                    39
                 ]
             ]
         }
@@ -59,13 +59,21 @@
         {
             "data": "Concorso Arretrat. -1",
             "ruote": "FIRENZE - MILANO",
+            "ambata": 57,
+            "ambo": "57 - 12",
+            "colpi": "1° Colpo",
+            "stato": "In gioco"
+        },
+        {
+            "data": "Concorso Arretrat. -2",
+            "ruote": "FIRENZE - MILANO",
             "ambata": 90,
             "ambo": "90 - 45",
             "colpi": "Esito al 1° colpo",
             "stato": "Ambata Vincente"
         },
         {
-            "data": "Concorso Arretrat. -2",
+            "data": "Concorso Arretrat. -3",
             "ruote": "FIRENZE - MILANO",
             "ambata": 82,
             "ambo": "82 - 37",
@@ -73,23 +81,23 @@
             "stato": "Ambata Vincente"
         },
         {
-            "data": "Concorso Arretrat. -3",
+            "data": "Concorso Arretrat. -4",
             "ruote": "FIRENZE - MILANO",
             "ambata": 61,
             "ambo": "61 - 16",
-            "colpi": "3° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -4",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 37,
-            "ambo": "37 - 82",
             "colpi": "4° Colpo",
             "stato": "In gioco"
         },
         {
             "data": "Concorso Arretrat. -5",
+            "ruote": "FIRENZE - MILANO",
+            "ambata": 37,
+            "ambo": "37 - 82",
+            "colpi": "5° Colpo",
+            "stato": "In gioco"
+        },
+        {
+            "data": "Concorso Arretrat. -6",
             "ruote": "FIRENZE - MILANO",
             "ambata": 58,
             "ambo": "58 - 13",
@@ -97,43 +105,35 @@
             "stato": "Ambata Vincente"
         },
         {
-            "data": "Concorso Arretrat. -6",
+            "data": "Concorso Arretrat. -7",
             "ruote": "FIRENZE - MILANO",
             "ambata": 66,
             "ambo": "66 - 21",
-            "colpi": "6° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -7",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 32,
-            "ambo": "32 - 77",
             "colpi": "7° Colpo",
             "stato": "In gioco"
         },
         {
             "data": "Concorso Arretrat. -8",
             "ruote": "FIRENZE - MILANO",
-            "ambata": 29,
-            "ambo": "29 - 74",
+            "ambata": 32,
+            "ambo": "32 - 77",
             "colpi": "8° Colpo",
             "stato": "In gioco"
         },
         {
             "data": "Concorso Arretrat. -9",
             "ruote": "FIRENZE - MILANO",
-            "ambata": 55,
-            "ambo": "55 - 10",
-            "colpi": "Esito al 1° colpo",
+            "ambata": 29,
+            "ambo": "29 - 74",
+            "colpi": "Esito al 9° colpo",
             "stato": "Ambata Vincente"
         },
         {
             "data": "Concorso Arretrat. -10",
             "ruote": "FIRENZE - MILANO",
-            "ambata": 49,
-            "ambo": "49 - 4",
-            "colpi": "Esito al 4° colpo",
+            "ambata": 55,
+            "ambo": "55 - 10",
+            "colpi": "Esito al 1° colpo",
             "stato": "Ambata Vincente"
         }
     ]
