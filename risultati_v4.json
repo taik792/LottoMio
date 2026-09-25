@@ -1,140 +1,17 @@
 {
     "info_concorso": {
         "numero": "Lotto Intelligence V8",
-        "data": "25/09/2026"
+        "data": "N/D"
     },
-    "previsioni": {
-        "FIRENZE": {
-            "numeri_estrazione": [
-                75,
-                15,
-                49,
-                21,
-                13
-            ],
-            "tipo_calcolo": "Sommativo da 1° Firenze (75) +10",
-            "ambata": 85,
-            "ambo": [
-                85,
-                40
-            ],
-            "ambetti": [
-                [
-                    85,
-                    41
-                ],
-                [
-                    85,
-                    39
-                ]
-            ]
-        },
-        "MILANO": {
-            "numeri_estrazione": [
-                78,
-                29,
-                86,
-                53,
-                52
-            ],
-            "tipo_calcolo": "Sommativo da 1° Firenze (75) +10",
-            "ambata": 85,
-            "ambo": [
-                85,
-                40
-            ],
-            "ambetti": [
-                [
-                    85,
-                    41
-                ],
-                [
-                    85,
-                    39
-                ]
-            ]
-        }
-    },
+    "previsioni": {},
     "storico_verificato": [
         {
-            "data": "Concorso Arretrat. -1",
+            "data": "Nessun dato",
             "ruote": "FIRENZE - MILANO",
-            "ambata": 57,
-            "ambo": "57 - 12",
+            "ambata": "-",
+            "ambo": "-",
             "colpi": "1° Colpo",
             "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -2",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 90,
-            "ambo": "90 - 45",
-            "colpi": "Esito al 1° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
-            "data": "Concorso Arretrat. -3",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 82,
-            "ambo": "82 - 37",
-            "colpi": "Esito al 2° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
-            "data": "Concorso Arretrat. -4",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 61,
-            "ambo": "61 - 16",
-            "colpi": "4° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -5",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 37,
-            "ambo": "37 - 82",
-            "colpi": "5° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -6",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 58,
-            "ambo": "58 - 13",
-            "colpi": "Esito al 4° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
-            "data": "Concorso Arretrat. -7",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 66,
-            "ambo": "66 - 21",
-            "colpi": "7° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -8",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 32,
-            "ambo": "32 - 77",
-            "colpi": "8° Colpo",
-            "stato": "In gioco"
-        },
-        {
-            "data": "Concorso Arretrat. -9",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 29,
-            "ambo": "29 - 74",
-            "colpi": "Esito al 9° colpo",
-            "stato": "Ambata Vincente"
-        },
-        {
-            "data": "Concorso Arretrat. -10",
-            "ruote": "FIRENZE - MILANO",
-            "ambata": 55,
-            "ambo": "55 - 10",
-            "colpi": "Esito al 1° colpo",
-            "stato": "Ambata Vincente"
         }
     ]
 }
