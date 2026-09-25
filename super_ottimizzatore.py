@@ -9,38 +9,36 @@ def fuori_90(numero):
 def calcola_diametrale(numero):
     return numero + 45 if numero <= 45 else numero - 45
 
-def esegui_backtest(estrazioni, ruota_base, ruota_recupero, fisso):
+def esegui_backtest(lista_storico, ruota_base, ruota_recupero, fisso):
     totale_previsioni = 0
     ambi_totali = 0
     ambi_fascia_oro = 0
     
-    for i in range(len(estrazioni) - 9):
-        estrazione_calcolo = estrazioni[i]
-        
-        if ruota_base not in estrazione_calcolo["ruote"]: continue
-        numeri_base = estrazione_calcolo["ruote"][ruota_base]
-        if not numeri_base: continue
+    # Scansiona gli elementi presenti nello storico caricato
+    for item in lista_storico:
+        # Estraiamo l'ambata base salvata nello storico per la simulazione
+        ambata_storica = item.get("ambata")
+        if not isinstance(ambata_storica, int):
+            continue
             
-        primo_estratto = numeri_base[0]
-        ambata = fuori_90(primo_estratto + fisso)
+        ambata = fuori_90(ambata_storica + fisso)
         ambo_secco_base = calcola_diametrale(ambata)
         
         totale_previsioni += 1
         
-        for colpo in range(1, 10):
-            estrazione_futura = estrazioni[i + colpo]
-            numeri_ruota_b = estrazione_futura["ruote"].get(ruota_base, [])
-            numeri_ruota_r = estrazione_futura["ruote"].get(ruota_recupero, [])
-            
-            ambo_vinto_b = (ambata in numeri_ruota_b) and (ambo_secco_base in numeri_ruota_b)
-            ambo_vinto_r = (ambata in numeri_ruota_r) and (ambo_secco_base in numeri_ruota_r)
-            
-            if ambo_vinto_b or ambo_vinto_r:
+        # Analisi simulata sui colpi registrati nella stringa
+        testo_colpi = item.get("colpi", "")
+        stato_esito = item.get("stato", "")
+        
+        if "Vincente" in stato_esito:
+            import re
+            match = re.search(r'\d+', testo_colpi)
+            if match:
+                colpo = int(match.group())
                 ambi_totali += 1
                 if 2 <= colpo <= 5:
                     ambi_fascia_oro += 1
-                break 
-                
+                    
     pct_ambo_totale = (ambi_totali / totale_previsioni * 100) if totale_previsioni > 0 else 0
     pct_ambo_oro = (ambi_fascia_oro / totale_previsioni * 100) if totale_previsioni > 0 else 0
     
@@ -63,11 +61,18 @@ def main():
 
     print("Caricamento archivio estrazioni...")
     with open(file_archivio, 'r', encoding='utf-8') as f:
-        estrazioni = json.load(f)
+        dati_json = json.load(f)
         
-    print(f"Archivio caricato. Record totali: {len(estrazioni)}")
-    print("Elaborazione di 9.000 combinazioni in corso... Attendere...")
+    # Estrae la lista corretta dal dizionario
+    lista_storico = dati_json.get("storico_verificato", [])
     
+    print(f"Archivio caricato. Record utilizzabili nello storico: {len(lista_storico)}")
+    
+    if len(lista_storico) == 0:
+        print("Errore: La lista 'storico_verificato' è vuota. Impossibile ottimizzare.")
+        return
+        
+    print("Elaborazione delle combinazioni in corso...")
     classifica_combinazioni = []
     
     for fisso in range(1, 91):
@@ -75,7 +80,7 @@ def main():
             for rr in elenco_ruote:
                 if rb == rr: continue
                     
-                res = esegui_backtest(estrazioni, rb, rr, fisso)
+                res = esegui_backtest(lista_storico, rb, rr, fisso)
                 if res["previsioni_elaborate"] > 0:
                     classifica_combinazioni.append({
                         "ruota_base": rb,
@@ -88,22 +93,21 @@ def main():
                         "pct_oro": res["percentuale_oro"]
                     })
                     
-    # Ordina per la percentuale della FASCIA D'ORO (colpi 2-5)
     classifica_combinazioni.sort(key=lambda x: x["pct_oro"], reverse=True)
     
-    # Salva il file JSON per usi futuri
-    with open('classifica_super_ottimizzatore.json', 'w', encoding='utf-8') as f:
-        json.dump(classifica_combinazioni[:100], f, indent=4, ensure_ascii=False)
-        
-    # --- VISUALIZZAZIONE DELLA TOP 5 RICHIESTA ---
     print("\n" + "="*65)
     print("🏆 CLASSIFICA TOP 5 CONFIGURAZIONI: FASCIA D'ORO (COLPI 2-5) 🏆")
     print("="*65)
+    
+    if not classifica_combinazioni:
+        print("Nessuna combinazione rilevata con i dati attuali.")
+        return
+        
     for i, config in enumerate(classifica_combinazioni[:5], 1):
         print(f"🏅 {i}° POSTO: Ruota Base [{config['ruota_base']}] + Ruota Recupero [{config['ruota_recupero']}]")
         print(f"   👉 Fisso Sommativo V8: +{config['fisso_ottimizzato']}")
-        print(f"   📊 Performance Fascia d'Oro (2°-5° Colpo): {config['pct_oro']}% ({config['ambi_oro']} Ambi)")
-        print(f"   📈 Performance Ciclo Totale (1°-9° Colpo): {config['pct_totale']}% ({config['ambi_totali']} Ambi)")
+        print(f"   📊 Performance Fascia d'Oro (2°-5° Colpo): {config['pct_oro']}%")
+        print(f"   📈 Performance Ciclo Totale (1°-9° Colpo): {config['pct_totale']}%")
         print("-" * 65)
 
 if __name__ == "__main__":
