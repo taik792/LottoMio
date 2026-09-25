@@ -1,4 +1,4 @@
-name: Lotto V8 Backtest Automatizzato2
+name: Esegui Super Ottimizzatore Fascia d'Oro
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
     - name: Esegui Test Storico V8
       run: |
         if [ -f genera_risultati.py ]; then
-          python trova_coppia_perfetta.py
+          run: python super_ottimizzatore.py
         else
           echo "Errore: Il file genera_risultati.py non esiste nella repository!"
           exit 1
