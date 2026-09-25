@@ -71,55 +71,66 @@
 </div>
 
 <script>
-    // Funzione principale che legge i dati generati da Python
     async function caricaRisultati() {
         try {
-            // Carica il file dei risultati correnti
+            // Carica il file generato da Python
             const response = await fetch('risultati_v4.json');
             const dati = await response.json();
             
-            // 1. Aggiorna dinamicamente i titoli delle ruote e i valori
-            const rb = dati.ruota_base || "FIRENZE";
-            const rr = dati.ruota_recupero || "MILANO";
+            console.log("Dati JSON ricevuti:", dati); // Utile per fare debug nella console del browser
+
+            // 1. Lettura Flessibile delle Ruote (maiuscole o minuscole)
+            const rb = dati.ruota_base || dati.Ruota_Base || dati.ruota_b || "FIRENZE";
+            const rr = dati.ruota_recupero || dati.Ruota_Recupero || dati.ruota_r || "MILANO";
             document.getElementById('titolo-ruote').innerText = `🔥 RUOTA BASE: ${rb} | RECUPERO: ${rr}`;
             
-            document.getElementById('valore-ambata').innerText = dati.ambata;
-            document.getElementById('valore-ambo').innerText = `${dati.ambata} - ${dati.ambo_secco}`;
+            // 2. Lettura Flessibile di Ambata e Ambo Secco (gestisce 'ambata', 'Ambata', 'ambo_secco', 'Ambo', ecc.)
+            const valoreAmbata = dati.ambata || dati.Ambata || dati.AMBATA || "-";
+            const valoreAmboSecco = dati.ambo_secco || dati.Ambo_Secco || dati.ambo || dati.Ambo || "-";
             
-            if(dati.ambetti && dati.ambetti.length >= 2) {
-                document.getElementById('valore-ambetti').innerText = `Ambetti Secondari: ${dati.ambata}-${dati.ambetti[0]} e ${dati.ambata}-${dati.ambetti[1]}`;
+            // Aggiorna l'interfaccia grafica
+            document.getElementById('valore-ambata').innerText = valoreAmbata;
+            document.getElementById('valore-ambo').innerText = `${valoreAmbata} - ${valoreAmboSecco}`;
+            
+            // Gestione Ambetti
+            const valoreAmbetti = dati.ambetti || dati.Ambetti || [];
+            if(valoreAmbetti && valoreAmbetti.length >= 2) {
+                document.getElementById('valore-ambetti').innerText = `Ambetti Secondari: ${valoreAmbata}-${valoreAmbetti[0]} e ${valoreAmbata}-${valoreAmbetti[1]}`;
+            } else {
+                document.getElementById('valore-ambetti').innerText = "";
             }
 
-            // 2. Gestione e tracciamento del colpo con logica visiva
-            const colpo = dati.colpo_corrente;
+            // 3. Gestione e tracciamento del colpo corrente
+            const colpo = dati.colpo_corrente || dati.Colpo_Corrente || dati.colpo || dati.Colpo || 0;
             const statoBox = document.getElementById('stato-colpo');
             
-            // Resetta eventuali righe evidenziate nella montante
+            // Resetta le righe della montante
             for(let c=2; c<=5; c++) {
                 const row = document.getElementById(`row-${c}`);
                 if(row) row.className = "";
             }
 
-            if (colpo === 1) {
+            // Assegnazione dei badge in base al colpo numerico trovato
+            const colpoNum = parseInt(colpo, 10);
+            if (colpoNum === 1) {
                 statoBox.innerHTML = `<span class="badge badge-attesa">Colpo 1: In attesa (Strategia: NON GIOCARE)</span>`;
-            } else if (colpo >= 2 && colpo <= 5) {
-                statoBox.innerHTML = `<span class="badge badge-oro">🔥 FASCIA D'ORO: Colpo ${colpo} (ATTACCA ORA!)</span>`;
-                // Evidenzia la riga corrispondente nella tabella montante
-                const rigaAttiva = document.getElementById(`row-${colpo}`);
+            } else if (colpoNum >= 2 && colpoNum <= 5) {
+                statoBox.innerHTML = `<span class="badge badge-oro">🔥 FASCIA D'ORO: Colpo ${colpoNum} (ATTACCA ORA!)</span>`;
+                const rigaAttiva = document.getElementById(`row-${colpoNum}`);
                 if(rigaAttiva) rigaAttiva.className = "consigliato";
-            } else if (colpo >= 6 && colpo <= 9) {
-                statoBox.innerHTML = `<span class="badge badge-tardi">Colpo ${colpo}: Fase tardiva (Prudenza)</span>`;
+            } else if (colpoNum >= 6 && colpoNum <= 9) {
+                statoBox.innerHTML = `<span class="badge badge-tardi">Colpo ${colpoNum}: Fase tardiva (Prudenza)</span>`;
             } else {
                 statoBox.innerHTML = `<span class="badge badge-attesa">Nessun colpo attivo o Pronostico Scaduto</span>`;
             }
 
         } catch (errore) {
             console.error("Errore nel caricamento del file JSON:", errore);
-            document.getElementById('titolo-ruote').innerText = "Errore caricamento dati (risultati_v4.json non trovato)";
+            document.getElementById('titolo-ruote').innerText = "Errore caricamento dati (Controlla il file risultati_v4.json)";
         }
     }
 
-    // Esegui la funzione all'avvio della pagina
+    // Esegui all'avvio
     window.onload = caricaRisultati;
 </script>
 
