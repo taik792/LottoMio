@@ -23,7 +23,7 @@ def calcola_diametrale(numero):
 def analizza_file_estrazioni():
     """Legge il file tabellare o spaziato e organizza le estrazioni in ordine cronologico."""
     if not os.path.exists(FILE_ESTRAZIONI):
-        print(f"❌ ERRORE CRITICO: Il file {FILE_ESTRAZIONI} non esiste nella cartella!")
+        print(f"❌ ERRORE: Il file {FILE_ESTRAZIONI} non esiste nella cartella!")
         return []
         
     cronologia = {}
@@ -40,67 +40,42 @@ def analizza_file_estrazioni():
             parti = re.split(r'\t+|\s+', riga)
             
             if len(parti) < 7:
-                continue # Salta righe malformate
+                continue 
                 
             data = parti[0]
-            ruota = parti[1].upper() # Forza maiuscolo per evitare errori di battitura
+            ruota = parti[1].upper() 
             
             try:
                 numeri = [int(x) for x in parti[2:7]]
             except ValueError:
-                continue # Salta se i numeri non sono interi
+                continue 
                 
             if data not in cronologia:
                 cronologia[data] = {}
-            cronologia[data][ruota] = numbers = numeri
+            cronologia[data][ruota] = numeri
             
     date_ordinate = sorted(list(cronologia.keys()))
-    print(f"📊 Righe grezze lette nel file: {righe_lette}. Concorsi unici elaborati: {len(date_ordinate)}")
+    print(f"📊 Righe grezze lette: {righe_lette}. Concorsi unici elaborati: {len(date_ordinate)}")
     return [ {"data": d, "ruote": cronologia[d]} for d in date_ordinate ]
 
 def main():
     estrazioni = analizza_file_estrazioni()
     
-    # SE IL FILE È VUOTO O SU GITHUB NON VIENE TROVATO IL VERO ARCHIVIO
     if not estrazioni or len(estrazioni) < 2:
-        print("⚠️ ARCHIVIO VUOTO O CORTO: Attivazione modalità simulata 3° Colpo per index.html")
-        struttura_di_emergenza = {
-            "info_concorso": {"numero": "Lotto Intelligence V8", "data": "Estrazione di Stasera"},
-            "previsioni": {
-                RUOTA_BASE_NOME: {
-                    "ambata": 41, 
-                    "ambo":, 
-                    "ambetti": [[41, 87], [41, 85]]
-                },
-                RUOTA_RECUPERO_NOME: {
-                    "ambata": 41, 
-                    "ambo":, 
-                    "ambetti": [[41, 87], [41, 85]]
-                }
-            },
-            "storico_verificato": [
-                {
-                    "data": "Concorso Precedente",
-                    "ruote": f"{RUOTA_BASE_NOME} - {RUOTA_RECUPERO_NOME}",
-                    "ambata": 41,
-                    "ambo": "41 - 86",
-                    "colpi": "3° Colpo",
-                    "stato": "In gioco"
-                }
-            ]
-        }
-        with open(FILE_RISULTATI, "w", encoding="utf-8") as f:
-            json.dump(struttura_di_emergenza, f, indent=4, ensure_ascii=False)
-        print(f"✅ File {FILE_RISULTATI} generato in modalità simulata (3° Colpo attivo).")
+        print("❌ Impossibile procedere: archivio insufficiente o non letto correttamente.")
         return
 
     tot_estrazioni = len(estrazioni)
     ultima_estrazione = estrazioni[-1]
     data_attuale = ultima_estrazione["data"]
     
-    # Calcolo previsione attuale (1° Colpo)
+    # --- CALCOLO MATEMATICO DINAMICO DELLA PREVISIONE ATTUALE (1° COLPO) ---
     numeri_to = ultima_estrazione["ruote"].get(RUOTA_BASE_SIGLA, [])
-    primo_estratto = numeri_to[0] if numeri_to else 10
+    if not numeri_to:
+        print(f"⚠️ Attenzione: Ruota {RUOTA_BASE_NOME} non trovata nell'ultimo concorso!")
+        return
+        
+    primo_estratto = numeri_to[0] # Prende dinamicamente il primo estratto reale
     
     ambata = fuori_90(primo_estratto + FISSO_OTTIMIZZATO)
     ambo_secco = calcola_diametrale(ambata)
@@ -112,9 +87,9 @@ def main():
         RUOTA_RECUPERO_NOME: {"ambata": ambata, "ambo": [ambata, ambo_secco], "ambetti": [[ambata, d_p1], [ambata, d_m1]]}
     }
 
+    # --- GENERAZIONE AUTOMATICA CRONOLOGICA DELLO STORICO DEI COLPI ---
     storico_verificato = []
     
-    # Generazione automatica lineare dei colpi reali passati
     for indietro in range(1, min(11, tot_estrazioni)):
         idx = tot_estrazioni - 1 - indietro
         if idx < 0: continue
@@ -160,20 +135,20 @@ def main():
             "stato": stato
         })
 
-    # Compilazione finale pulita
+    # Struttura JSON finale pulita inviata al front-end
     struttura_finale = {
         "info_concorso": {
             "numero": "Lotto Intelligence V8", 
             "data": data_attuale
         }, 
-        "previsioni": previsioni_output, 
+        "previsioni": .get(re.compile(r'.*').pattern, previsioni_output), 
         "storico_verificato": storico_verificato
     }
 
     with open(FILE_RISULTATI, "w", encoding="utf-8") as f:
         json.dump(struttura_finale, f, indent=4, ensure_ascii=False)
         
-    print(f"✅ File {FILE_RISULTATI} generato con successo. Trovate {tot_estrazioni} estrazioni.")
+    print(f"✅ File {FILE_RISULTATI} generato con successo calcolando {tot_estrazioni} estrazioni.")
 
 if __name__ == "__main__":
     main()
