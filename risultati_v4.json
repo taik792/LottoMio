@@ -1,52 +1,32 @@
 {
-    "info_concorso": {
-        "numero": "Lotto Intelligence V8",
-        "data": "In attesa dati"
+    "previsione_attuale": {
+        "concorso": 7335,
+        "ambata": 8,
+        "ambo": "8-53",
+        "colpo": 1,
+        "nota": "Fase di attesa e studio (1° Colpo). NON SI GIOCA."
     },
-    "previsioni": {
-        "TORINO": {
-            "ambata": 41,
-            "ambo": [
-                41,
-                86
-            ],
-            "ambetti": [
-                [
-                    41,
-                    87
-                ],
-                [
-                    41,
-                    85
-                ]
-            ]
-        },
-        "NAPOLI": {
-            "ambata": 41,
-            "ambo": [
-                41,
-                86
-            ],
-            "ambetti": [
-                [
-                    41,
-                    87
-                ],
-                [
-                    41,
-                    85
-                ]
-            ]
-        }
-    },
-    "storico_verificato": [
+    "storico_in_corso": [
         {
-            "data": "Estrazione Arretrata",
-            "ruote": "TORINO - NAPOLI",
-            "ambata": 41,
-            "ambo": "41 - 86",
-            "colpi": "2° Colpo",
-            "stato": "In gioco"
+            "concorso": 7332,
+            "ambata": 25,
+            "ambo": "25-70",
+            "colpo": 4,
+            "stato": "In corso"
+        },
+        {
+            "concorso": 7333,
+            "ambata": 58,
+            "ambo": "58-13",
+            "colpo": 3,
+            "stato": "In corso"
+        },
+        {
+            "concorso": 7334,
+            "ambata": 1,
+            "ambo": "1-46",
+            "colpo": 2,
+            "stato": "In corso"
         }
     ]
 }
