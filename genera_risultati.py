@@ -3,7 +3,7 @@ import os
 
 # Configurazione Regina V8
 FISSO = 31
-RUOTA_BASE = "Torino"       # NOTA: Nel tuo JSON le ruote hanno l'iniziale maiuscola
+RUOTA_BASE = "Torino"       
 RUOTA_RECUPERO = "Napoli"
 
 def fuori_90(numero):
@@ -32,7 +32,6 @@ def analizza_archivio():
             print("Errore: estrazioni.json non è un JSON valido.")
             return
 
-    # Sincronizzazione ruote e controllo presenza dati
     if RUOTA_BASE not in archivio or RUOTA_RECUPERO not in archivio:
         print(f"Errore: Ruote '{RUOTA_BASE}' o '{RUOTA_RECUPERO}' non trovate nel file.")
         return
@@ -47,54 +46,69 @@ def analizza_archivio():
 
     cronologia_colpi = []
     
-    # 2. Scansione a ritroso per calcolare l'avanzamento dei colpi passati (dal 2° al 5° colpo)
-    # Range da totale_concorsi-5 (se esiste) fino al penultimo concorso (-2)
+    # 2. Scansione a ritroso protetta per i colpi passati (dal 2° al 5° colpo)
     start_index = max(0, totale_concorsi - 5)
     end_index = totale_concorsi - 1
 
     for i in range(start_index, end_index):
-        # Calcoliamo quanti concorsi reali sono passati da QUELLA estrazione passata
-        # rispetto all'ULTIMA estrazione inserita nell'archivio
-        colpo_attuale = totale_concorsi - 1 - i + 1  # +1 perché il concorso subito dopo è il 2° colpo
+        colpo_attuale = totale_concorsi - 1 - i + 1  
         
         if colpo_attuale < 2 or colpo_attuale > 5:
             continue
 
-        cinquina_base_passata = estrazioni_base[i]
-        primo_estratto_passato = cinquina_base_passata[0] # 1° Estratto Ruota Base
+        try:
+            cinquina_base_passata = estrazioni_base[i]
+            # Gestione se l'elemento è una lista (cinquina) o un singolo numero numerico
+            if isinstance(cinquina_base_passata, list):
+                primo_estratto_passato = int(cinquina_base_passata[0])
+            else:
+                primo_estratto_passato = int(cinquina_base_passata)
+        except (IndexError, ValueError, TypeError):
+            continue # Salta se l'estrazione passata è malformata
         
         ambata_passata = fuori_90(primo_estratto_passato + FISSO)
         ambo_passato = calcola_diametrale(ambata_passata)
         
-        # Verifica sfaldamento nei concorsi successivi a quello di generazione (fino all'ultimo attuale)
         sfaldato = False
         esito = "In corso"
-        colpo_sfaldamento = 0
         
+        # Controllo sfaldamento protetto da squilibri di lunghezza tra ruote
         for j in range(i + 1, totale_concorsi):
-            controllo_base = estrazioni_base[j]
-            controllo_recupero = estrazioni_recupero[j]
-            
-            # Un colpo avanza nel ciclo se non esce l'ambata su nessuna delle due ruote
-            if ambata_passata in controllo_base or ambata_passata in controllo_recupero:
-                sfaldato = True
-                colpo_sfaldamento = j - i + 1
-                esito = f"Sfaldato al {colpo_sfaldamento}° Colpo"
-                break
+            try:
+                controllo_base = estrazioni_base[j]
                 
-        # Inseriamo nello storico visibile in basso solo le previsioni ancora attive (Fascia d'Oro)
+                # Se la ruota di controllo recupero non ha ancora l'estrazione J, usa una lista vuota
+                if j < len(estrazioni_recupero):
+                    controllo_recupero = estrazioni_recupero[j]
+                else:
+                    controllo_recupero = []
+
+                # Verifica presenza dell'ambata (gestisce sia se l'estrazione è una lista che un singolo valore)
+                in_base = (ambata_passata in controllo_base) if isinstance(controllo_base, list) else (ambata_passata == controllo_base)
+                in_recupero = (ambata_passata in controllo_recupero) if isinstance(controllo_recupero, list) else (ambata_passata == controllo_recupero)
+
+                if in_base or in_recupero:
+                    sfaldato = True
+                    esito = f"Sfaldato al {j - i + 1}° Colpo"
+                    break
+            except IndexError:
+                break # Interrompe la ricerca per questa previsione se gli indici si interrompono
+                
         if not sfaldato:
             cronologia_colpi.append({
-                "concorso": i + 1,  # Numero indicativo del concorso (indice + 1)
+                "concorso": i + 1,  
                 "ambata": ambata_passata,
                 "ambo": f"{ambata_passata}-{ambo_passato}",
                 "colpo": colpo_attuale,
                 "stato": esito
             })
 
-    # 3. Previsione Attuale (Generata dall'ULTIMA riga assoluta dell'archivio = 1° Colpo)
+    # 3. Previsione Attuale sicura (Generata dall'ULTIMA riga assoluta di Ruota Base = 1° Colpo)
     ultima_cinquina_base = estrazioni_base[-1]
-    primo_estratto_attuale = ultima_cinquina_base[0]
+    if isinstance(ultima_cinquina_base, list):
+        primo_estratto_attuale = int(ultima_cinquina_base[0])
+    else:
+        primo_estratto_attuale = int(ultima_cinquina_base)
     
     ambata_attuale = fuori_90(primo_estratto_attuale + FISSO)
     ambo_attuale = calcola_diametrale(ambata_attuale)
@@ -115,7 +129,7 @@ def analizza_archivio():
 
     with open('risultati_v4.json', 'w', encoding='utf-8') as f:
         json.dump(output_finale, f, indent=4, ensure_ascii=False)
-    print("risultati_v4.json aggiornato con successo in formato nativo.")
+    print("risultati_v4.json generato con successo e blindato contro IndexError.")
 
 if __name__ == "__main__":
     analizza_archivio()
