@@ -52,7 +52,7 @@ def analizza_file_estrazioni():
                 
             if data not in cronologia:
                 cronologia[data] = {}
-            cronologia[data][ruota] = numeri
+            cronologia[data][ruota] = numbers = numeri
             
     date_ordinate = sorted(list(cronologia.keys()))
     print(f"📊 Righe grezze lette nel file: {righe_lette}. Concorsi unici elaborati: {len(date_ordinate)}")
