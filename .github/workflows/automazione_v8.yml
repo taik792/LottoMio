@@ -27,9 +27,7 @@ jobs:
 
     - name: Esegui Elaborazione Dati
       run: |
-        if [ -f genera_risultati.py ]; then
-          python genera_risultati.py
-        fi
+       
         if [ -f test_ruote_top5.py ]; then
           python test_ruote_top5.py
         fi
