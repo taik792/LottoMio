@@ -30,8 +30,8 @@ jobs:
         if [ -f genera_risultati.py ]; then
           python genera_risultati.py
         fi
-        if [ -f super_ottimizzatore.py ]; then
-          python super_ottimizzatore.py
+        if [ -f test_ruote_top5.py ]; then
+          python test_ruote_top5.py
         fi
 
     - name: Salva e Pubblica su GitHub Pages / index.html
