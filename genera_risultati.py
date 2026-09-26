@@ -3,8 +3,8 @@ import os
 
 # Configurazione Regina V8
 FISSO = 31
-RUOTA_BASE = "TO"
-RUOTA_RECUPERO = "NA"
+RUOTA_BASE = "Torino"       # NOTA: Nel tuo JSON le ruote hanno l'iniziale maiuscola
+RUOTA_RECUPERO = "Napoli"
 
 def fuori_90(numero):
     while numero > 90:
@@ -20,89 +20,94 @@ def calcola_diametrale(numero):
         return numero - 45
 
 def analizza_archivio():
+    # 1. Lettura nativa del file JSON
     if not os.path.exists('estrazioni.json'):
         print("Errore: estrazioni.json non trovato.")
         return
 
-    # 1. Lettura pulita: esclude righe vuote e filtra solo quelle con abbastanza colonne
-    linee_valide = []
     with open('estrazioni.json', 'r', encoding='utf-8') as f:
-        for line in f:
-            riga_pulita = line.strip().split()
-            # Una riga valida deve avere almeno 12 colonne per raggiungere l'indice di TO (11)
-            # Modifica il numero 12 se la tua struttura ha indici diversi
-            if riga_pulita and len(riga_pulita) >= 12:
-                # Verifica che i dati delle ruote siano effettivamente numeri
-                try:
-                    int(riga_pulita[11]) # Verifica TO
-                    int(riga_pulita[6])  # Verifica NA
-                    linee_valide.append(riga_pulita)
-                except ValueError:
-                    # Salta la riga se non contiene numeri (es. intestazioni, testi)
-                    continue
+        try:
+            archivio = json.load(f)
+        except json.JSONDecodeError:
+            print("Errore: estrazioni.json non è un JSON valido.")
+            return
 
-    if len(linee_valide) < 1:
-        print("Errore: Nessuna riga valida trovata nell'archivio.")
+    # Sincronizzazione ruote e controllo presenza dati
+    if RUOTA_BASE not in archivio or RUOTA_RECUPERO not in archivio:
+        print(f"Errore: Ruote '{RUOTA_BASE}' o '{RUOTA_RECUPERO}' non trovate nel file.")
         return
 
-    # Configurazione indici delle ruote
-    ruote_indice = {"TO": 11, "NA": 6}
+    estrazioni_base = archivio[RUOTA_BASE]
+    estrazioni_recupero = archivio[RUOTA_RECUPERO]
+    
+    totale_concorsi = len(estrazioni_base)
+    if totale_concorsi < 1:
+        print("Errore: Archivio vuoto.")
+        return
+
     cronologia_colpi = []
     
-    # 2. Scansione a ritroso sicura sulle linee valide
-    for i in range(len(linee_valide) - 5, len(linee_valide) - 1):
-        if i < 0: continue
+    # 2. Scansione a ritroso per calcolare l'avanzamento dei colpi passati (dal 2° al 5° colpo)
+    # Range da totale_concorsi-5 (se esiste) fino al penultimo concorso (-2)
+    start_index = max(0, totale_concorsi - 5)
+    end_index = totale_concorsi - 1
+
+    for i in range(start_index, end_index):
+        # Calcoliamo quanti concorsi reali sono passati da QUELLA estrazione passata
+        # rispetto all'ULTIMA estrazione inserita nell'archivio
+        colpo_attuale = totale_concorsi - 1 - i + 1  # +1 perché il concorso subito dopo è il 2° colpo
         
-        riga_passata = linee_valide[i]
-        primo_TO_passato = int(riga_passata[ruote_indice["TO"]]) 
+        if colpo_attuale < 2 or colpo_attuale > 5:
+            continue
+
+        cinquina_base_passata = estrazioni_base[i]
+        primo_estratto_passato = cinquina_base_passata[0] # 1° Estratto Ruota Base
         
-        ambata_passata = fuori_90(primo_TO_passato + FISSO)
+        ambata_passata = fuori_90(primo_estratto_passato + FISSO)
         ambo_passato = calcola_diametrale(ambata_passata)
         
-        colpo_attuale = len(linee_valide) - 1 - i + 1
-        
+        # Verifica sfaldamento nei concorsi successivi a quello di generazione (fino all'ultimo attuale)
         sfaldato = False
         esito = "In corso"
+        colpo_sfaldamento = 0
         
-        for j in range(i + 1, len(linee_valide)):
-            estrazione_controllo = linee_valide[j]
-            try:
-                numeri_TO = [int(n) for n in estrazione_controllo[ruote_indice["TO"]:ruote_indice["TO"]+5]]
-                numeri_NA = [int(n) for n in estrazione_controllo[ruote_indice["NA"]:ruote_indice["NA"]+5]]
+        for j in range(i + 1, totale_concorsi):
+            controllo_base = estrazioni_base[j]
+            controllo_recupero = estrazioni_recupero[j]
+            
+            # Un colpo avanza nel ciclo se non esce l'ambata su nessuna delle due ruote
+            if ambata_passata in controllo_base or ambata_passata in controllo_recupero:
+                sfaldato = True
+                colpo_sfaldamento = j - i + 1
+                esito = f"Sfaldato al {colpo_sfaldamento}° Colpo"
+                break
                 
-                if ambata_passata in numeri_TO or ambata_passata in numeri_NA:
-                    sfaldato = True
-                    esito = f"Sfaldato al {j - i}° Colpo"
-                    break
-            except (ValueError, IndexError):
-                continue
-                
-        if colpo_attuale >= 2 and colpo_attuale <= 5 and not sfaldato:
+        # Inseriamo nello storico visibile in basso solo le previsioni ancora attive (Fascia d'Oro)
+        if not sfaldato:
             cronologia_colpi.append({
-                "concorso": riga_passata[0] if len(riga_passata) > 0 else "N/D",
-                "data": riga_passata[1] if len(riga_passata) > 1 else "N/D",
+                "concorso": i + 1,  # Numero indicativo del concorso (indice + 1)
                 "ambata": ambata_passata,
                 "ambo": f"{ambata_passata}-{ambo_passato}",
                 "colpo": colpo_attuale,
                 "stato": esito
             })
 
-    # 3. Previsione Attuale (Ultima riga valida del file = 1° Colpo)
-    ultima_riga = linee_valide[-1]
-    primo_TO_attuale = int(ultima_riga[ruote_indice["TO"]])
-    ambata_attuale = fuori_90(primo_TO_attuale + FISSO)
+    # 3. Previsione Attuale (Generata dall'ULTIMA riga assoluta dell'archivio = 1° Colpo)
+    ultima_cinquina_base = estrazioni_base[-1]
+    primo_estratto_attuale = ultima_cinquina_base[0]
+    
+    ambata_attuale = fuori_90(primo_estratto_attuale + FISSO)
     ambo_attuale = calcola_diametrale(ambata_attuale)
 
     previsione_nuova = {
-        "concorso": ultima_riga[0] if len(ultima_riga) > 0 else "N/D",
-        "data": ultima_riga[1] if len(ultima_riga) > 1 else "N/D",
+        "concorso": totale_concorsi,
         "ambata": ambata_attuale,
         "ambo": f"{ambata_attuale}-{ambo_attuale}",
         "colpo": 1,
-        "nota": "Fase di attesa e studio. NON SI GIOCA."
+        "nota": "Fase di attesa e studio (1° Colpo). NON SI GIOCA."
     }
 
-    # 4. Scrittura output finale
+    # 4. Scrittura output finale in risultati_v4.json
     output_finale = {
         "previsione_attuale": previsione_nuova,
         "storico_in_corso": cronologia_colpi
@@ -110,5 +115,7 @@ def analizza_archivio():
 
     with open('risultati_v4.json', 'w', encoding='utf-8') as f:
         json.dump(output_finale, f, indent=4, ensure_ascii=False)
-    print("risultati_v4.json aggiornato con successo.")
+    print("risultati_v4.json aggiornato con successo in formato nativo.")
 
+if __name__ == "__main__":
+    analizza_archivio()
