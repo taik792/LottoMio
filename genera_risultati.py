@@ -2,7 +2,7 @@ import json
 import os
 import re
 
-# --- CONFIGURAZIONE REGINA FASCIA D'ORO V8 ---
+# --- CONFIGURAZIONE REGINA ASSOLUTA V8 ---
 FISSO_OTTIMIZZATO = 31
 RUOTA_BASE_SIGLA = "TO"      
 RUOTA_RECUPERO_SIGLA = "NA"   
@@ -21,82 +21,85 @@ def calcola_diametrale(numero):
     return numero + 45 if numero <= 45 else numero - 45
 
 def analizza_file_estrazioni():
-    """Legge il file tabellare o spaziato e organizza le estrazioni in ordine cronologico."""
+    """Legge l'archivio tabellare e organizza le estrazioni cronologicamente."""
     if not os.path.exists(FILE_ESTRAZIONI):
-        print(f"❌ ERRORE: Il file {FILE_ESTRAZIONI} non esiste nella cartella!")
+        print(f"❌ ERRORE: File {FILE_ESTRAZIONI} non trovato!")
         return []
         
     cronologia = {}
-    righe_lette = 0
-    
     with open(FILE_ESTRAZIONI, "r", encoding="utf-8") as f:
         for riga in f:
             riga = riga.strip()
             if not riga:
                 continue
-            righe_lette += 1
-            
-            # Splitta in modo flessibile: gestisce sia TAB \t che spazi multipli
             parti = re.split(r'\t+|\s+', riga)
-            
             if len(parti) < 7:
-                continue 
+                continue
                 
             data = parti[0]
-            ruota = parti[1].upper() 
-            
+            ruota = parti[1].upper()
             try:
                 numeri = [int(x) for x in parti[2:7]]
             except ValueError:
-                continue 
+                continue
                 
             if data not in cronologia:
                 cronologia[data] = {}
             cronologia[data][ruota] = numeri
             
-    date_ordinate = sorted(list(cronologia.keys()))
-    print(f"📊 Righe grezze lette: {righe_lette}. Concorsi unici elaborati: {len(date_ordinate)}")
-    return [ {"data": d, "ruote": cronologia[d]} for d in date_ordinate ]
+    return [{"data": d, "ruote": cronologia[d]} for d in sorted(list(cronologia.keys()))]
 
 def main():
     estrazioni = analizza_file_estrazioni()
-    
     if not estrazioni or len(estrazioni) < 2:
-        print("❌ Impossibile procedere: archivio insufficiente o non letto correttamente.")
+        print("❌ Impossibile procedere: Dati insufficienti in estrazioni.json")
         return
 
     tot_estrazioni = len(estrazioni)
     ultima_estrazione = estrazioni[-1]
     data_attuale = ultima_estrazione["data"]
     
-    # --- CALCOLO MATEMATICO DINAMICO DELLA PREVISIONE ATTUALE (1° COLPO) ---
-    numeri_to = ultima_estrazione["ruote"].get(RUOTA_BASE_SIGLA, [])
-    if not numeri_to:
-        print(f"⚠️ Attenzione: Ruota {RUOTA_BASE_NOME} non trovata nell'ultimo concorso!")
-        return
-        
-    primo_estratto = numeri_to[0] # Prende dinamicamente il primo estratto reale
-    
-    ambata = fuori_90(primo_estratto + FISSO_OTTIMIZZATO)
-    ambo_secco = calcola_diametrale(ambata)
-    d_p1 = fuori_90(ambo_secco + 1)
-    d_m1 = fuori_90(ambo_secco - 1)
+    # 1. CALCOLO MATEMATICO DINAMICO PREVISIONE NUOVA (1° COLPO)
+    numeri_to_attuali = ultima_estrazione["ruote"].get(RUOTA_BASE_SIGLA, [])
+    if not numeri_to_attuali:
+        print(f"⚠️ Ruota {RUOTA_BASE_NOME} mancante nell'ultimo concorso. Prendo fallback grafico.")
+        primo_estratto = 10
+    else:
+        primo_estratto = numeri_to_attuali[0]
+
+    ambata_att = fuori_90(primo_estratto + FISSO_OTTIMIZZATO)
+    ambo_att = calcola_diametrale(ambata_att)
+    d_p1_att = fuori_90(ambo_att + 1)
+    d_m1_att = fuori_90(ambo_att - 1)
 
     previsioni_output = {
-        RUOTA_BASE_NOME: {"ambata": ambata, "ambo": [ambata, ambo_secco], "ambetti": [[ambata, d_p1], [ambata, d_m1]]},
-        RUOTA_RECUPERO_NOME: {"ambata": ambata, "ambo": [ambata, ambo_secco], "ambetti": [[ambata, d_p1], [ambata, d_m1]]}
+        RUOTA_BASE_NOME: {
+            "ambata": ambata_att,
+            "ambo": [ambata_att, ambo_att],
+            "ambetti": [[ambata_att, d_p1_att], [ambata_att, d_m1_att]]
+        },
+        RUOTA_RECUPERO_NOME: {
+            "ambata": ambata_att,
+            "ambo": [ambata_att, ambo_att],
+            "ambetti": [[ambata_att, d_p1_att], [ambata_att, d_m1_att]]
+        }
     }
 
-    # --- GENERAZIONE AUTOMATICA CRONOLOGICA DELLO STORICO DEI COLPI ---
+    # 2. TRACKING AUTOMATICO DEI COLPI ARRETRATI (FASCIA D'ORO IN BASSO)
     storico_verificato = []
     
+    # Scansioniamo a ritroso gli ultimi 10 concorsi per monitorare le vecchie previsioni
     for indietro in range(1, min(11, tot_estrazioni)):
         idx = tot_estrazioni - 1 - indietro
-        if idx < 0: continue
+        if idx < 0:
+            continue
+            
         est_passata = estrazioni[idx]
         num_to_p = est_passata["ruote"].get(RUOTA_BASE_SIGLA, [])
-        if not num_to_p: continue
-        
+        if not num_to_p:
+            continue
+            
+        # Ricalcolo geometrico della vecchia previsione generata in quel concorso
         ambata_p = fuori_90(num_to_p[0] + FISSO_OTTIMIZZATO)
         ambo_p = calcola_diametrale(ambata_p)
         
@@ -135,20 +138,20 @@ def main():
             "stato": stato
         })
 
-    # Struttura JSON finale pulita inviata al front-end
+    # Generazione struttura finale pulita
     struttura_finale = {
         "info_concorso": {
-            "numero": "Lotto Intelligence V8", 
+            "numero": "Lotto Intelligence V8",
             "data": data_attuale
-        }, 
-        "previsioni": .get(re.compile(r'.*').pattern, previsioni_output), 
+        },
+        "previsioni": previsioni_output,
         "storico_verificato": storico_verificato
     }
 
     with open(FILE_RISULTATI, "w", encoding="utf-8") as f:
         json.dump(struttura_finale, f, indent=4, ensure_ascii=False)
         
-    print(f"✅ File {FILE_RISULTATI} generato con successo calcolando {tot_estrazioni} estrazioni.")
+    print(f"✅ Successo! Generato {FILE_RISULTATI} calcolando {tot_estrazioni} estrazioni.")
 
 if __name__ == "__main__":
     main()
