@@ -1,7 +1,7 @@
 {
     "info_concorso": {
         "numero": "Lotto Intelligence V8",
-        "data": "N/D"
+        "data": "In attesa dati"
     },
     "previsioni": {
         "TORINO": {
@@ -41,11 +41,11 @@
     },
     "storico_verificato": [
         {
-            "data": "Concorso Attuale",
+            "data": "Estrazione Arretrata",
             "ruote": "TORINO - NAPOLI",
             "ambata": 41,
             "ambo": "41 - 86",
-            "colpi": "1° Colpo",
+            "colpi": "2° Colpo",
             "stato": "In gioco"
         }
     ]
