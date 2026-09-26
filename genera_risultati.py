@@ -69,7 +69,7 @@ def main():
             "previsioni": {
                 RUOTA_BASE_NOME: {
                     "ambata": 41, 
-                    "ambo": , 
+                    "ambo":, 
                     "ambetti": [[41, 87], [41, 85]]
                 },
                 RUOTA_RECUPERO_NOME: {
