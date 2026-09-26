@@ -1,6 +1,6 @@
 {
     "previsione_attuale": {
-        "concorso": 7335,
+        "concorso": 3953,
         "ambata": 8,
         "ambo": "8-53",
         "colpo": 1,
@@ -8,23 +8,16 @@
     },
     "storico_in_corso": [
         {
-            "concorso": 7332,
-            "ambata": 25,
-            "ambo": "25-70",
-            "colpo": 4,
-            "stato": "In corso"
-        },
-        {
-            "concorso": 7333,
-            "ambata": 58,
-            "ambo": "58-13",
+            "concorso": 3951,
+            "ambata": 15,
+            "ambo": "15-60",
             "colpo": 3,
             "stato": "In corso"
         },
         {
-            "concorso": 7334,
-            "ambata": 1,
-            "ambo": "1-46",
+            "concorso": 3952,
+            "ambata": 52,
+            "ambo": "52-7",
             "colpo": 2,
             "stato": "In corso"
         }
