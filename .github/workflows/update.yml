@@ -1,4 +1,4 @@
-name: Esegui Super Ottimizzatore Fascia d'Oro
+name: Esegui Super Ottimizzatore 
 
 on:
   push:
@@ -11,11 +11,13 @@ jobs:
   run-backtest:
     runs-on: ubuntu-latest
 
+    # 🟢 PERMESSO CRITICO: Consente a GitHub Actions di salvare i file modificati
+    permissions:
+      contents: write
+
     steps:
     - name: Cambia codice sorgente
       uses: actions/checkout@v4
-      with:
-        persist-credentials: true  # Permette a GitHub di salvare i file
 
     - name: Configura Python
       uses: actions/setup-python@v5
@@ -33,10 +35,19 @@ jobs:
         fi
 
     - name: Autocommit e Push dei risultati aggiornati
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        # Configurazione con il bot ufficiale di GitHub Actions
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
         git add risultati_v4.json
-        # Esegue il commit solo se il file dei risultati è effettivamente cambiato
-        git diff --quiet && git diff --staged --quiet || git commit -m "🤖 Aggiornamento automatico risultati_v4.json [Fascia d'Oro]"
-        git push
+        
+        # Esegue il commit solo se il file risultati_v4.json è effettivamente cambiato
+        if ! git diff --cached --quiet; then
+          git commit -m "🤖 Aggiornamento automatico risultati_v4.json [Fascia d'Oro]"
+          git push origin HEAD:${{ github.ref }}
+        else
+          echo "Nessuna modifica rilevata in risultati_v4.json, salto il push."
+        fi
