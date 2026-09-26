@@ -1,31 +1,42 @@
-name: Lotto Bot V4
+name: Esegui Super Ottimizzatore Fascia d'Oro
 
 on:
-  schedule:
-    - cron: "*/30 * * * *" # Ogni 30 minuti
-  workflow_dispatch: # Permette l'avvio manuale
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Ti permette di avviare il test manualmente con un clic
 
 jobs:
-  build:
+  run-backtest:
     runs-on: ubuntu-latest
-    permissions: # Permessi di scrittura necessari
-      contents: write
+
     steps:
-      - name: Clona repository
-        uses: actions/checkout@v3
+    - name: Cambia codice sorgente
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: true  # Permette a GitHub di salvare i file
 
-      - name: Installa Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: Configura Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-      - name: Esegui algoritmo
-        run: python genera_risultati.py
+    - name: Esegui Motore e Ottimizzatore V8
+      run: |
+        if [ -f genera_risultati.py ]; then
+          python genera_risultati.py
+          python super_ottimizzatore.py
+        else
+          echo "Errore: Il file genera_risultati.py non esiste nella repository!"
+          exit 1
+        fi
 
-      - name: Commit risultati
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add risultati_v4.json
-          git commit -m "Update risultati V4" || echo "Nessuna modifica"
-          git push
+    - name: Autocommit e Push dei risultati aggiornati
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add risultati_v4.json
+        # Esegue il commit solo se il file dei risultati è effettivamente cambiato
+        git diff --quiet && git diff --staged --quiet || git commit -m "🤖 Aggiornamento automatico risultati_v4.json [Fascia d'Oro]"
+        git push
