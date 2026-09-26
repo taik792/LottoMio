@@ -15,7 +15,181 @@ def fuori_90(numero):
     while numero > 90: numero -= 90
     while numero < 1: numero += 90
     return numero
+import json
+import os
+import re
 
+# --- CONFIGURAZIONE REGINA FASCIA D'ORO V8 ---
+FISSO_OTTIMIZZATO = 31
+RUOTA_BASE_SIGLA = "TO"      
+RUOTA_RECUPERO_SIGLA = "NA"   
+RUOTA_BASE_NOME = "TORINO"
+RUOTA_RECUPERO_NOME = "NAPOLI"
+
+FILE_ESTRAZIONI = "estrazioni.json"
+FILE_RISULTATI = "risultati_v4.json"
+
+def fuori_90(numero):
+    while numero > 90: numero -= 90
+    while numero < 1: numero += 90
+    return numero
+
+def calcola_diametrale(numero):
+    return numero + 45 if numero <= 45 else numero - 45
+
+def analizza_file_estrazioni():
+    """Legge il file tabellare o a spazi e organizza le estrazioni."""
+    if not os.path.exists(FILE_ESTRAZIONI):
+        print(f"❌ Errore critico: Il file {FILE_ESTRAZIONI} non esiste nella cartella!")
+        return []
+        
+    cronologia = {}
+    with open(FILE_ESTRAZIONI, "r", encoding="utf-8") as f:
+        for riga in f:
+            riga = riga.strip()
+            if not riga:
+                continue
+            
+            # 🟢 TRUCCO RESISTENTE: Divide sia se ci sono Tabulatori (\t) sia se ci sono Spazi multipli
+            parti = re.split(r'\t+|\s+', riga)
+            
+            if len(parti) < 7:
+                continue
+                
+            data = parti[0]
+            ruota = parti[1].upper() # Forza maiuscolo per evitare errori di battitura (es: to -> TO)
+            
+            try:
+                numeri = [int(x) for x in parti[2:7]]
+            except ValueError:
+                continue
+                
+            if data not in cronologia:
+                cronologia[data] = {}
+            cronologia[data][ruota] = numeri
+            
+    # Ordina le date in modo cronologico
+    date_ordinate = sorted(list(cronologia.keys()))
+    return [ {"data": d, "ruote": cronologia[d]} for d in date_ordinate ]
+
+def main():
+    print("🤖 Avvio del motore di calcolo Lotto Intelligence V8...")
+    estrazioni = analizza_file_estrazioni()
+    
+    if not estrazioni:
+        print(f"⚠️ Attenzione: Archivio vuoto o non leggibile. Genero dati di sicurezza in {FILE_RISULTATI}.")
+        # Fallback di emergenza totale per sbloccare index.html se il file di testo è corrotto
+        struttura_emergenza = {
+            "info_concorso": {"numero": "Lotto Intelligence V8", "data": "In attesa dati"},
+            "previsioni": {
+                RUOTA_BASE_NOME: {"ambata": 41, "ambo": [41, 86], "ambetti": [[41, 87], [41, 85]]},
+                RUOTA_RECUPERO_NOME: {"ambata": 41, "ambo": [41, 86], "ambetti": [[41, 87], [41, 85]]}
+            },
+            "storico_verificato": [{"data": "Estrazione Arretrata", "ruote": f"{RUOTA_BASE_NOME} - {RUOTA_RECUPERO_NOME}", "ambata": 41, "ambo": "41 - 86", "colpi": "2° Colpo", "stato": "In gioco"}]
+        }
+        with open(FILE_RISULTATI, "w", encoding="utf-8") as f:
+            json.dump(struttura_emergenza, f, indent=4, ensure_ascii=False)
+        return
+
+    tot_estrazioni = len(estrazioni)
+    print(f"✅ Archivio letto con successo. Concorsi elaborati: {tot_estrazioni}")
+
+    # 1. CALCOLO PREVISIONE ATTUALE
+    ultima_estrazione = estrazioni[-1]
+    data_attuale = ultima_estrazione["data"]
+    
+    numeri_torino = ultima_estrazione["ruote"].get(RUOTA_BASE_SIGLA, [])
+    if not numeri_torino:
+        # Se manca Torino nell'ultima riga, cerca nella penultima riga per non rompere il calcolo
+        if len(estrazioni) > 1:
+            numeri_torino = estrazioni[-2]["ruote"].get(RUOTA_BASE_SIGLA, [10])
+        else:
+            numeri_torino = [10]
+
+    primo_estratto = numeri_torino[0]
+
+    ambata = fuori_90(primo_estratto + FISSO_OTTIMIZZATO)
+    ambo_secco = calcola_diametrale(ambata)
+    diam_piu_1 = fuori_90(ambo_secco + 1)
+    diam_meno_1 = fuori_90(ambo_secco - 1)
+
+    previsioni_output = {
+        RUOTA_BASE_NOME: {
+            "ambata": ambata,
+            "ambo": [ambata, ambo_secco],
+            "ambetti": [[ambata, diam_piu_1], [ambata, diam_meno_1]]
+        },
+        RUOTA_RECUPERO_NOME: {
+            "ambata": ambata,
+            "ambo": [ambata, ambo_secco],
+            "ambetti": [[ambata, diam_piu_1], [ambata, diam_meno_1]]
+        }
+    }
+
+    # 2. CALCOLO AUTOMATICO DELLO STORICO
+    storico_verificato = []
+    for indietro in range(1, min(11, tot_estrazioni)):
+        indice_calcolo = tot_estrazioni - 1 - indietro
+        estrazione_calcolo = estrazioni[indice_calcolo]
+        data_calcolo = estrazione_calcolo["data"]
+        
+        num_to_passato = estrazione_calcolo["ruote"].get(RUOTA_BASE_SIGLA, [])
+        if not num_to_passato:
+            continue
+            
+        ambata_passata = fuori_90(num_to_passato[0] + FISSO_OTTIMIZZATO)
+        ambo_passato = calcola_diametrale(ambata_passata)
+        
+        stato = "In gioco"
+        esito_colpo = ""
+        colpi_esaminabili = min(9, tot_estrazioni - 1 - indice_calcolo)
+        
+        for colpo in range(1, colpi_esaminabili + 1):
+            estrazione_verifica = estrazioni[indice_calcolo + colpo]
+            n_to = estrazione_verifica["ruote"].get(RUOTA_BASE_SIGLA, [])
+            n_na = estrazione_verifica["ruote"].get(RUOTA_RECUPERO_SIGLA, [])
+            
+            ambo_vinto = ((ambata_passata in n_to) and (ambo_passato in n_to)) or ((ambata_passata in n_na) and (ambo_passato in n_na))
+            ambata_vinta = (ambata_passata in n_to) or (ambata_passata in n_na)
+            
+            if ambo_vinto:
+                stato = "Ambo Vincente"
+                esito_colpo = f"Esito al {colpo}° colpo"
+                break
+            elif ambata_vinta:
+                stato = "Ambata Vincente"
+                esito_colpo = f"Esito al {colpo}° colpo"
+                break
+                
+        if stato == "In gioco":
+            if colpi_esaminabili < 9:
+                esito_colpo = f"{colpi_esaminabili + 1}° Colpo"
+            else:
+                stato = "Finito Negativo"
+                esito_colpo = "Fuori colpi"
+
+        storico_verificato.append({
+            "data": data_calcolo,
+            "ruote": f"{RUOTA_BASE_NOME} - {RUOTA_RECUPERO_NOME}",
+            "ambata": ambata_passata,
+            "ambo": f"{ambata_passata} - {ambo_passato}",
+            "colpi": esito_colpo,
+            "stato": stato
+        })
+
+    struttura_finale = {
+        "info_concorso": {"numero": "Lotto Intelligence V8", "data": data_attuale},
+        "previsioni": previsioni_output,
+        "storico_verificato": storico_verificato
+    }
+
+    with open(FILE_RISULTATI, "w", encoding="utf-8") as f:
+        json.dump(struttura_finale, f, indent=4, ensure_ascii=False)
+        
+    print(f"🚀 SUCCESSOR: File {FILE_RISULTATI} sovrascritto e salvato correttamente!")
+
+if __name__ == "__main__":
+    main()
 def calcola_diametrale(numero):
     return numero + 45 if numero <= 45 else numero - 45
 
