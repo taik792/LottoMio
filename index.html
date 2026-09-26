@@ -95,109 +95,86 @@
 </div>
 
 <script>
-    async function caricaRisultati() {
+    // Funzione principale per caricare e renderizzare i dati
+    async function caricaDashboard() {
         try {
-            const response = await fetch('risultati_v4.json');
+            // Aggiungiamo un timestamp per distruggere la cache del browser
+            const response = await fetch('risultati_v4.json?t=' + new Date().getTime());
+            if (!response.ok) throw new Error("Impossibile caricare risultati_v4.json");
+            
             const dati = await response.json();
             
-            console.log("Dati JSON ricevuti:", dati);
-
-            // 1. RILEVAMENTO DINAMICO DELLE RUOTE REALI DAL JSON
-            const chiaviRuote = Object.keys(dati.previsioni || {});
-            let rb = "TORINO";   // Valore di sicurezza
-            let rr = "NAPOLI";   // Valore di sicurezza
-            
-            if (chiaviRuote.length >= 2) {
-                rb = chiaviRuote[0]; // Prende la prima ruota (es. TORINO)
-                rr = chiaviRuote[1]; // Prende la seconda ruota (es. NAPOLI)
-            } else if (chiaviRuote.length === 1) {
-                rb = chiaviRuote[0];
-                rr = chiaviRuote[0];
-            }
-            
-            // Aggiorna il titolo visivo con le ruote effettive del file JSON
-            document.getElementById('titolo-ruote').innerText = `🔥 RUOTA BASE: ${rb} | RECUPERO: ${rr}`;
-            
-            // 2. ESTRATTO DATI NUMERICI DELLA PREVISIONE
-            if(chiaviRuote.length > 0) {
-                const datiPrevisione = dati.previsioni[rb];
+            // 1. RENDERING PREVISIONE ATTUALE (1° Colpo)
+            if (dati.previsione_attuale) {
+                const prev = dati.previsione_attuale;
                 
-                const ambata = datiPrevisione.ambata;
-                const amboPrimo = datiPrevisione.ambo[0];
-                const amboSecondo = datiPrevisione.ambo[1];
+                // Mappa i tuoi ID dei campi HTML (es. 'ambata-attuale', 'ambo-attuale', ecc.)
+                // Sostituisci gli ID qui sotto se nel tuo HTML si chiamano diversamente
+                document.getElementById('ambata-box').innerText = prev.ambata || '-';
+                document.getElementById('ambo-box').innerText = prev.ambo || '-';
                 
-                document.getElementById('valore-ambata').innerText = ambata;
-                document.getElementById('valore-ambo').innerText = `${amboPrimo} - ${amboSecondo}`;
-                
-                if(datiPrevisione.ambetti && datiPrevisione.ambetti.length >= 2) {
-                    const ambetto1 = datiPrevisione.ambetti[0].join('-');
-                    const ambetto2 = datiPrevisione.ambetti[1].join('-');
-                    document.getElementById('valore-ambetti').innerText = `Ambetti Secchi: ${ambetto1} / ${ambetto2}`;
+                // Aggiorna lo stato della barra superiore
+                const statoBarra = document.getElementById('stato-barra');
+                if (statoBarra) {
+                    statoBarra.innerText = `STATO: Concorso ${prev.concorso} attivo (${prev.colpo}° Colpo)`;
+                    statoBarra.style.backgroundColor = "#2c3e50"; // Colore scuro neutro
                 }
             }
 
-            // 3. TRACCIAMENTO DEL COLPO DALLO STORICO
-            let colpoNum = 0;
-            let testoColpo = "Nessun colpo attivo";
-            
-            if(dati.storico_verificato && dati.storico_verificato.length > 0) {
-                const ultimoStorico = dati.storico_verificato[0];
-                testoColpo = `${ultimoStorico.colpi} (${ultimoStorico.stato})`;
+            // 2. RENDERING TABELLA STORICO IN CORSO (2°-5° Colpo)
+            const corpoTabella = document.getElementById('corpo-tabella-storico'); // Cambialo con l'ID del tuo <tbody>
+            if (corpoTabella) {
+                corpoTabella.innerHTML = ''; // Svuota la tabella precedente
                 
-                const match = ultimoStorico.colpi.match(/\d+/);
-                if(match && ultimoStorico.stato === "In gioco") {
-                    colpoNum = parseInt(match[0], 10);
+                const storico = dati.storico_in_corso || [];
+                
+                if (storico.length === 0) {
+                    corpoTabella.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nessuna previsione pregressa attiva nei colpi dal 2° al 5°</td></tr>`;
+                } else {
+                    storico.forEach(item => {
+                        const riga = document.createElement('tr');
+                        
+                        // Evidenziazione cromatica basata sul colpo per attivare visivamente la montante
+                        let stileColpo = "";
+                        if (item.colpo >= 2 && item.colpo <= 5) {
+                            stileColpo = "background-color: #fff3cd; font-weight: bold; color: #856404;"; // Giallo Fascia d'Oro
+                        }
+
+                        riga.innerHTML = `
+                            <td>${item.concorso}</td>
+                            <td><span class="badge-ambata">${item.ambata}</span></td>
+                            <td><span class="badge-ambo">${item.ambo}</span></td>
+                            <td style="${stileColpo}">${item.colpo}° Colpo</td>
+                            <td><span class="stato-attivo">${item.stato}</span></td>
+                        `;
+                        corpoTabella.appendChild(riga);
+                    });
                 }
             }
 
-            // Gestione dei badge grafici
-            const statoBox = document.getElementById('stato-colpo');
-            if (colpoNum === 1) {
-                statoBox.className = "badge badge-attesa";
-                statoBox.innerHTML = `⚠️ STATO: 1° Colpo in corso. (Strategia V8: NON GIOCARE, attendi lo sfaldamento)`;
-            } else if (colpoNum >= 2 && colpoNum <= 5) {
-                statoBox.className = "badge badge-oro";
-                statoBox.innerHTML = `🔥 FASCIA D'ORO ATTIVA: Previsione al ${colpoNum}° Colpo. ATTACCA ORA!`;
-                const rigaAttiva = document.getElementById(`row-${colpoNum}`);
-                if(rigaAttiva) rigaAttiva.className = "consigliato";
-            } else if (colpoNum >= 6 && colpoNum <= 9) {
-                statoBox.className = "badge badge-tardi";
-                statoBox.innerHTML = `🐢 STATO: ${colpoNum}° Colpo. Fase tardiva di recupero.`;
-            } else {
-                statoBox.className = "badge badge-attesa";
-                statoBox.innerHTML = `🛑 STATO: ${testoColpo}`;
-            }
-
-            // 4. POPOLAMENTO TABELLA STORICO
-            const corpoStorico = document.getElementById('corpo-storico');
-            corpoStorico.innerHTML = "";
-            
-            if(dati.storico_verificato) {
-                dati.storico_verificato.forEach(item => {
-                    const tr = document.createElement('tr');
-                    let classeStato = "in-gioco";
-                    if(item.stato.includes("Vincente")) {
-                        classeStato = "vinta";
+            // 3. ACCENSIONE VISIVA DELLA MONTANTE PROGRESSIVA
+            // Se c'è almeno un colpo attivo nello storico, illumina la riga corrispondente nel piano di giocata
+            if (dati.storico_in_corso && dati.storico_in_corso.length > 0) {
+                // Togliamo prima eventuali classi 'active' preesistenti dalle righe della montante
+                document.querySelectorAll('.riga-montante').forEach(r => r.classList.remove('evidenziata'));
+                
+                dati.storico_in_corso.forEach(item => {
+                    // Cerca la riga del piano d'azione corrispondente al colpo (es. id="riga-colpo-3")
+                    const rigaPiano = document.getElementById(`riga-colpo-${item.colpo}`);
+                    if (rigaPiano) {
+                        rigaPiano.style.backgroundColor = "#d4edda"; // Verde illuminato per indicare che si gioca quel colpo
+                        rigaPiano.style.color = "#155724";
                     }
-                    
-                    tr.innerHTML = `
-                        <td>${item.data}</td>
-                        <td>${item.ambata}</td>
-                        <td>${item.ambo}</td>
-                        <td>${item.colpi}</td>
-                        <td class="${classeStato}">${item.stato}</td>
-                    `;
-                    corpoStorico.appendChild(tr);
                 });
             }
 
         } catch (errore) {
-            console.error("Errore di lettura:", errore);
-            document.getElementById('titolo-ruote').innerText = "Errore: controlla l'architettura dei dati JSON.";
+            console.error("Errore nel rendering della dashboard:", errore);
         }
     }
 
-    window.onload = caricaRisultati;
+    // Esegui la funzione al caricamento della pagina
+    window.onload = caricaDashboard;
 </script>
 
 </body>
