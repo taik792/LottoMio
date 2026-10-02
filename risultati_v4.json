@@ -1,30 +1,30 @@
 {
     "previsione_attuale": {
-        "concorso": 3954,
-        "ambata": 48,
-        "ambo": "48-3",
+        "concorso": 3955,
+        "ambata": 13,
+        "ambo": "13-58",
         "colpo": 1,
         "nota": "Fase di attesa e studio. NON SI GIOCA."
     },
     "storico_in_corso": [
         {
-            "concorso": 3950,
-            "ambata": 86,
-            "ambo": "86-41",
-            "colpo": 5,
-            "stato": "In corso"
-        },
-        {
             "concorso": 3952,
             "ambata": 16,
             "ambo": "16-61",
-            "colpo": 3,
+            "colpo": 4,
             "stato": "In corso"
         },
         {
             "concorso": 3953,
             "ambata": 53,
             "ambo": "53-8",
+            "colpo": 3,
+            "stato": "In corso"
+        },
+        {
+            "concorso": 3954,
+            "ambata": 48,
+            "ambo": "48-3",
             "colpo": 2,
             "stato": "In corso"
         }
