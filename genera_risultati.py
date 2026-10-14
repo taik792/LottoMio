@@ -2,7 +2,7 @@ import json
 import os
 
 # Configurazione Definitiva emersa dal Backtest
-FISSO = 31
+FISSO = 40
 RUOTA_BASE = "Bari"       
 RUOTA_RECUPERO = "Genova"
 
